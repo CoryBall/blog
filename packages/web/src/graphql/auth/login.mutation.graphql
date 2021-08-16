@@ -1,0 +1,8 @@
+mutation login($credentials: Credentials!) {
+  login(credentials: $credentials) {
+    id
+    firstName
+    lastName
+    bearer
+  }
+}
