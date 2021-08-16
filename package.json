@@ -1,0 +1,10 @@
+{
+  "name": "blog",
+  "version": "0.0.1",
+  "main": "index.js",
+  "author": "Cory Ball <CoryBall@users.noreply.github.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "lerna": "^4.0.0"
+  }
+}
