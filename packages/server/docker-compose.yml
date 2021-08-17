@@ -1,69 +1,52 @@
-version: '3.8'
+version: '3.9'
 services:
   server:
+    container_name: blog_api
     build:
       context: .
       dockerfile: ./Dockerfile
-      args:
-        - http_proxy
-        - https_proxy
-        - no_proxy
-    image: docker.pkg.github.com/coryball/backend-template/template-server
-    networks:
-      web:
-        aliases:
-          - server
-      template:
-        aliases:
-          - server
-    env_file:
-      - env/prod.env
+    # image: docker.pkg.github.com/coryball/backend-template/template-server
     ports:
-    - 4000:4000
+      - '4000:4000'
+    depends_on:
+      - postgres
+      - redis
+    env_file: .env
   postgres:
-    container_name: backend_template_database
-    image: postgres:13.2
-    env_file:
-      - env/prod.env
+    container_name: blog_database
+    image: postgres:13.3
+    ports:
+      - '5432:5432'
     expose:
-      - 5432
+      - '5432'
+    environment:
+      POSTGRES_USER: $DATABASE_USERNAME
+      POSTGRES_PASSWORD: $DATABASE_PASSWORD
+      POSTGRES_DB: $DATABASE_NAME
+      POSTGRES_PORT: $DATABASE_PORT
+      PGDATA: /data/postgres
+    env_file: .env
     volumes:
       - ./.docker/data/:/data/postgres
       - ./.docker/psql_scripts/:/docker-entrypoint-initdb.d/
+  pg_admin:
+    container_name: blog_pgadmin
+    image: dpage/pgadmin4:5.4
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      - "5050:5050"
     networks:
-      template:
+      blog:
         aliases:
-          - database
-      web:
-        aliases:
-          - backend-template-database
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+          - pgadmin
   redis:
-    container_name: redis
+    container_name: blog_redis
     image: redis:alpine3.13
     restart: unless-stopped
+    ports:
+      - '6379:6379'
     expose:
       - 6379
-    networks:
-      template:
-        aliases:
-          - redis
-      web:
-        aliases:
-          - backend-template-redis
     volumes:
       - ./.docker/redis:/data
-    healthcheck:
-      test: [ "CMD", "redis-cli", "ping" ]
-      interval: 1s
-      timeout: 3s
-      retries: 30
-networks:
-  web:
-    external: true
-  template:
-    external: false

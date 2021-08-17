@@ -1,0 +1,104 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+  output = "../prisma/generated/client"
+  binaryTargets = ["native", "windows", "linux-musl"]
+}
+
+  // Entity Base
+  // id                String    @id @db.Uuid @default(uuid())
+  // createdAt         DateTime  @default(now())
+  // updatedAt         DateTime  @updatedAt
+  // isDeleted         Boolean   @default(false)
+
+model User{
+  // Entity Base
+  id                String    @id @db.Uuid @default(uuid())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  isDeleted         Boolean   @default(false)
+
+  // User
+  name              String
+  email             String    @unique
+  roleId            String    @db.Uuid
+  role              Role      @relation(fields: [roleId], references: [id])
+  posts             Post[]
+  socials           Social[]
+  likedPosts        PostsLikedByUsers[]
+  viewedPosts       PostsViewedByUsers[]
+  @@map("users")
+}
+
+model Role{
+  id                String    @id @db.Uuid @default(uuid())
+  name              String    @unique
+  users             User[]
+
+  @@map("roles")
+}
+
+model Social {
+  id                String    @id @db.Uuid @default(uuid())
+  userId            String    @db.Uuid
+  user              User      @relation(fields: [userId], references: [id])
+  type              String
+  accountId         String
+  accountUrl        String
+  accountProfileUrl String
+
+  @@map("socials")
+}
+
+model Post {
+  // Entity Base
+  id                String    @id @db.Uuid @default(uuid())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  isDeleted         Boolean   @default(false)
+
+  // Post
+  slug              String    @unique
+  title             String
+  body              String
+  published         Boolean   @default(false)
+  views             Int
+  viewsIps          String[]
+  viewsUsers        PostsViewedByUsers[]
+  likes             Int
+  likedIps          String[]
+  likedUsers        PostsLikedByUsers[]
+  author            User      @relation(fields: [authorId], references: [id])
+  authorId          String    @db.Uuid
+
+  @@map("posts")
+}
+
+model PostsLikedByUsers {
+  post              Post      @relation(fields: [postId], references: [id])
+  postId            String    @db.Uuid
+  user              User      @relation(fields: [userId], references: [id])
+  userId            String    @db.Uuid
+  likedAt           DateTime  @default(now())
+
+  @@id([postId, userId])
+  @@map("post_likes")
+}
+
+model PostsViewedByUsers {
+  post              Post      @relation(fields: [postId], references: [id])
+  postId            String    @db.Uuid
+  user              User      @relation(fields: [userId], references: [id])
+  userId            String    @db.Uuid
+  viewedAt          DateTime  @default(now())
+
+  @@id([postId, userId])
+  @@map("post_views")
+}

@@ -8,15 +8,22 @@
   "private": false,
   "scripts": {
     "watch": "tsc -w",
-    "build": "tsc",
     "start": "node -r dotenv/config ./dist/server.js dotenv_config_path=env/dev.env",
+    "build": "tsc",
     "start:prod": "node -r dotenv/config ./dist/server.js",
     "dev": "nodemon --watch .env --watch ./src -r dotenv/config --exec ts-node --files src/server.ts dotenv_config_path=env/dev.env",
-    "database:migration": "ts-node ./node_modules/typeorm/cli.js migration:generate -n",
-    "database:update": "ts-node ./node_modules/typeorm/cli.js migration:run",
-    "lint": "eslint --ext .tsx --ext .ts src/",
-    "lint:fix": "eslint ./src/** --fix",
-    "precommit": "lint-staged"
+    "lint": "eslint ./src/** --fix",
+    "precommit": "lint-staged",
+    "test:unit": "dotenv -e tests/.env.test -- jest --testTimeout=10000 --detectOpenHandles --runInBand \"src/**/*.spec.ts\"",
+    "test:integration": "dotenv -e tests/.env.test -- jest --testTimeout=10000 --detectOpenHandles --runInBand \"tests/**/*.integration.spec.ts\"",
+    "test:env-unit": "npm run lint && npm run test:env-up && npm run prisma:init && npm run test:unit",
+    "test:env-integration": "npm run lint && npm run test:env-up && npm run prisma:init && npm run test:integration",
+    "test:env-up": "docker-compose -f tests/docker-compose-test.yml up -d",
+    "docker:down": "docker-compose -f tests/docker-compose-test.yml down",
+    "prisma:migrate": "npx prisma migrate dev --name",
+    "prisma:deploy": "npx prisma migrate deploy",
+    "prisma:generate": "prisma generate",
+    "prisma:init": "dotenv -e ./tests/.env.test -- npx prisma migrate dev --name init"
   },
   "dependencies": {
     "apollo-server-express": "^2.22.2",
@@ -34,12 +41,9 @@
     "ioredis": "^4.24.6",
     "jsonwebtoken": "^8.5.1",
     "mime-types": "^2.1.30",
-    "pg": "^8.5.1",
     "reflect-metadata": "^0.1.13",
     "type-graphql": "^1.1.1",
     "typedi": "^0.10.0",
-    "typeorm": "^0.2.32",
-    "typeorm-typedi-extensions": "^0.4.1",
     "uuid": "^8.3.2",
     "winston": "^3.3.3"
   },
@@ -64,8 +68,8 @@
     "lint-staged": "^10.5.4",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
-    "ts-node": "^9.1.1",
-    "typescript": "^4.2.3"
+    "prisma": "^2.29.1",
+    "ts-node": "^9.1.1"
   },
   "nodemonConfig": {
     "watch": [
