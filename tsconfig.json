@@ -3,11 +3,20 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
+      "@blog/prisma": [
+        "./packages/server/prisma/generated/client"
+      ],
       "@blog/server": [
-        "packages/server"
+        "./packages/server/src"
+      ],
+      "@blog/server/*": [
+        "./packages/server/src/*"
       ],
       "@blog/web": [
-        "packages/web"
+        "./packages/web/src"
+      ],
+      "@blog/web/*": [
+        "./packages/web/src/*"
       ]
     }
   }

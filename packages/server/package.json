@@ -26,6 +26,7 @@
     "prisma:init": "dotenv -e ./tests/.env.test -- npx prisma migrate dev --name init"
   },
   "dependencies": {
+    "@prisma/client": "2.29.1",
     "apollo-server-express": "^2.22.2",
     "argon2": "^0.27.2",
     "aws-sdk": "^2.878.0",
@@ -68,7 +69,7 @@
     "lint-staged": "^10.5.4",
     "nodemon": "^2.0.7",
     "prettier": "^2.2.1",
-    "prisma": "^2.29.1",
+    "prisma": "2.29.1",
     "ts-node": "^9.1.1"
   },
   "nodemonConfig": {

@@ -3,13 +3,13 @@ import { FileUpload } from 'graphql-upload';
 import { ApolloError } from 'apollo-server-express';
 import { FileProgress } from './storage.types';
 import { Inject, Service } from 'typedi';
-import { StorageConfig } from '../../config';
-import { Image } from '../../models';
+import { StorageConfig } from '@blog/server/config';
+import { Image } from '@blog/server/models';
 import { v4 as uuidv4 } from 'uuid';
 import mime from 'mime-types';
 
 @Service()
-export class StorageService {
+class StorageService {
   @Inject()
   private readonly storageConfig: StorageConfig;
 
@@ -60,3 +60,5 @@ export class StorageService {
     }
   }
 }
+
+export default StorageService;

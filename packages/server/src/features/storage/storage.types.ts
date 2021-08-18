@@ -1,7 +1,7 @@
 import { ArgsType, Field, ObjectType } from 'type-graphql';
 
 @ObjectType()
-export class UploadProgress {
+class UploadProgress {
   @Field()
   complete: number;
   @Field()
@@ -10,13 +10,13 @@ export class UploadProgress {
 }
 
 @ArgsType()
-export class UploadProgressArgs {
+class UploadProgressArgs {
   @Field()
   fileName: string;
 }
 
 @ObjectType()
-export class FileProgress {
+class FileProgress {
   @Field()
   complete: number;
   @Field()
@@ -27,3 +27,5 @@ export class FileProgress {
   // }
   fileName: string;
 }
+
+export { UploadProgress, UploadProgressArgs, FileProgress };

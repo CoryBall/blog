@@ -9,17 +9,17 @@ import {
   Root,
   Subscription,
 } from 'type-graphql';
-import { StorageTopic } from './storageTopics';
 import { FileUpload, GraphQLUpload } from 'graphql-upload';
+import { Inject, Service } from 'typedi';
+import LoggerService from '@blog/server/features/logger';
+import { Image } from '@blog/server/models';
 import {
   UploadProgress,
   FileProgress,
   UploadProgressArgs,
-} from './storage.types';
-import { Inject, Service } from 'typedi';
-import LoggerService from '../logger';
-import { Image } from '../../models';
-import { StorageService } from './storage.service';
+  StorageTopic,
+  StorageService,
+} from '@blog/server/features/storage';
 
 @Service()
 @Resolver()

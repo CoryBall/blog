@@ -12,5 +12,4 @@ class Image {
   url: string;
 }
 
-
 export default Image;

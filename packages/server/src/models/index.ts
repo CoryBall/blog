@@ -1,5 +1,4 @@
 import Image from './image';
 
-export {
-    Image
-}
+export * from './wrappers';
+export { Image };

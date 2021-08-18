@@ -1,6 +1,6 @@
 import express, { Application } from 'express';
 import cors from 'cors';
-import validateTokensMiddleware from '../middleware/auth.middleware';
+import validateTokensMiddleware from '@blog/server/middleware/auth.middleware';
 import { graphqlUploadExpress } from 'graphql-upload';
 
 export default async (app: Application): Promise<Application> => {

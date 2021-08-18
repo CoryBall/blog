@@ -1,6 +1,6 @@
 import { Arg, Mutation, Resolver } from 'type-graphql';
-import { AuthService } from './auth.service';
-import { AuthPayload, Credentials } from './auth.types';
+import { AuthService } from '@blog/server/features/auth';
+import { AuthPayload, Credentials } from '@blog/server/features/auth';
 import { Inject, Service } from 'typedi';
 
 @Service()

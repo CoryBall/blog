@@ -3,12 +3,12 @@ import { AuthChecker } from 'type-graphql';
 const GraphqlAuthChecker: AuthChecker<DataContext> = (
   {
     context: {
-      req: { user },
+      req: { user, role },
     },
   },
   roles
 ): boolean => {
-  if (!user) {
+  if (!user || !role) {
     return false;
   }
 
@@ -16,14 +16,7 @@ const GraphqlAuthChecker: AuthChecker<DataContext> = (
     // if `@Authorized()`, check only if user exists
     return user?.id !== undefined;
   }
-
-  const mappedUserRoles: string[] = !user
-    ? []
-    : user.roles.map((role) => role.name);
-
-  // true if any roles overlap. false if none match
-
-  return mappedUserRoles.some((role) => roles.includes(role));
+  return roles.includes(role.name);
 };
 
 export default GraphqlAuthChecker;

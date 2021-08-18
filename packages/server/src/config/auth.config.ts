@@ -17,8 +17,8 @@ class AuthConfig {
 }
 
 export enum RoleValues {
-  User = "USER",
-  Admin = "ADMIN"
+  User = 'USER',
+  Admin = 'ADMIN',
 }
 
 export default AuthConfig;

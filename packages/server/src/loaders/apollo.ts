@@ -5,12 +5,12 @@ import {
   AuthResolver,
   UsersResolver,
   StorageResolver,
-} from '../modules/resolvers';
-import GraphqlAuthChecker from '../modules/auth/auth.apollo';
+} from '@blog/server/features/resolvers';
+import { GraphqlAuthChecker } from '@blog/server/features/auth';
 import Redis from 'ioredis';
 import { RedisPubSub } from 'graphql-redis-subscriptions';
 import * as http from 'http';
-import { ServerType } from './server.types';
+import { ServerType } from '@blog/server/loaders/server.types';
 import { Container } from 'typedi';
 
 export default async (app: Application): Promise<ServerType> => {
