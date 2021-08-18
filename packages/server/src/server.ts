@@ -1,7 +1,7 @@
 import 'reflect-metadata';
-import loaders from './loaders';
+import loaders from '@blog/server/loaders';
 import { Container } from 'typedi';
-import LoggerService from './modules/logger';
+import LoggerService from '@blog/server/features/logger';
 
 async function startServer() {
   const loggerService = Container.get(LoggerService);
@@ -14,12 +14,6 @@ async function startServer() {
   loggerService.logger.info(
     `🚀 Subscriptions ready at ws://localhost:${port}${server.apolloServer.subscriptionsPath}`
   );
-
-  // app.listen({ port: process.env.SERVER_PORT }, () =>
-  //   loggerService.logger.info(
-  //     `[Server] Listening on http://localhost:${process.env.SERVER_PORT}`
-  //   )
-  // );
 }
 
 startServer().then();

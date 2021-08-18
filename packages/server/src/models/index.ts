@@ -1,2 +1,4 @@
-export * from './entities';
-export * from './common';
+import Image from './image';
+
+export * from './wrappers';
+export { Image };

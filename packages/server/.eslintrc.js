@@ -13,4 +13,12 @@ module.exports = {
     project: './tsconfig.json',
   },
   plugins: ['@typescript-eslint'],
+  rules: {
+    'no-restricted-imports': [
+      'error',
+      {
+        patterns: ['@blog/server/features/*/*'],
+      },
+    ],
+  },
 };
