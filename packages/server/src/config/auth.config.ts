@@ -1,24 +1,26 @@
 import { Service } from 'typedi';
 
-@Service()
+@Service('AuthConfig')
 class AuthConfig {
   secretToken: string;
-  resetToken: string;
-  roles: {
-    user: 'USER';
-    admin: 'ADMIN';
-    superAdmin: 'SUPER_ADMIN';
-  };
 
   constructor() {
-    this.secretToken = process.env.JWT_SECRET ?? 'mySuperSecretAuthToken';
-    this.resetToken = process.env.RESET_SECRET ?? 'mySuperSecretResetToken';
+    const nullableSecret = process.env.JWT_SECRET;
+    if (!nullableSecret) {
+      throw new Error('JWT_SECRET not set');
+      process.exit(1);
+    }
+    this.secretToken = nullableSecret;
   }
 }
 
 export enum RoleValues {
   User = 'USER',
   Admin = 'ADMIN',
+}
+
+export enum SocialProviders {
+  Github = 'GITHUB',
 }
 
 export default AuthConfig;

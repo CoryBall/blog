@@ -12,11 +12,6 @@ generator client {
   binaryTargets = ["native", "windows", "linux-musl"]
 }
 
-generator typegraphql {
-  provider = "typegraphql-prisma"
-  output   = "../src/generated/typegraphql-prisma"
-}
-
   // Entity Base
   // id                String    @id @db.Uuid @default(uuid())
   // createdAt         DateTime  @default(now())
@@ -55,7 +50,7 @@ model Social {
   userId            String    @db.Uuid
   user              User      @relation(fields: [userId], references: [id])
   type              String
-  accountId         String
+  accountId         Int
   accountUrl        String
   accountProfileUrl String
 

@@ -5,7 +5,7 @@ import {
   UploadProgressArgs,
   FileProgress,
 } from './storage.types';
-import StorageTopic from './storageTopics';
+import StorageTopic from './storage.topics';
 
 export {
   StorageService,

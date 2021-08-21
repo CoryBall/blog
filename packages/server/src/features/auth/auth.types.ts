@@ -1,12 +1,4 @@
-import { Field, InputType, ObjectType } from 'type-graphql';
-
-@InputType()
-class Credentials {
-  @Field({ nullable: false })
-  email: string;
-  @Field({ nullable: false })
-  password: string;
-}
+import { Field, ObjectType } from 'type-graphql';
 
 @ObjectType()
 class AuthPayload {
@@ -14,4 +6,10 @@ class AuthPayload {
   bearer: string;
 }
 
-export { Credentials, AuthPayload };
+class GithubAuthResult {
+  access_token: string;
+  scope: string;
+  token_type: string;
+}
+
+export { AuthPayload, GithubAuthResult };

@@ -1,3 +1,18 @@
 {
-  "extends": "../../tsconfig.json",
+  "extends": "./tsconfig.build.json",
+  "compilerOptions": {
+    "baseUrl": ".",
+    "paths": {
+      "@blog/prisma": [
+        "./prisma/generated/client"
+      ],
+      "@blog/server": [
+        "./src"
+      ],
+      "@blog/server/*": [
+        "./src/*"
+      ],
+    }
+  }
 }
+  

@@ -17,7 +17,6 @@ import {
   UploadProgress,
   FileProgress,
   UploadProgressArgs,
-  StorageTopic,
   StorageService,
 } from '@blog/server/features/storage';
 
@@ -30,7 +29,7 @@ class StorageResolver {
   @Mutation(() => Image)
   async uploadImage(
     @Arg('file', () => GraphQLUpload, { nullable: false }) file: FileUpload,
-    @PubSub(StorageTopic.UploadProgress)
+    @PubSub('UPLOAD_PROGRESS')
     notifyAboutUploadProgress: Publisher<FileProgress>
   ): Promise<Image> {
     return await this.storageService.uploadImage(
@@ -40,7 +39,7 @@ class StorageResolver {
   }
 
   @Subscription(() => FileProgress, {
-    topics: StorageTopic.UploadProgress,
+    topics: 'UPLOAD_PROGRESS',
     filter: ({
       payload,
       args,
@@ -50,8 +49,9 @@ class StorageResolver {
   })
   uploadStatus(
     @Root() progress: FileProgress,
-    @Args() { fileName }: UploadProgressArgs
+    @Args(() => UploadProgressArgs) uploadArgs: UploadProgressArgs
   ): UploadProgress {
+    const { fileName } = uploadArgs;
     this.loggerService.logger.info(`SUBSCRIPTION HIT. fileName: ${fileName}`);
     return progress;
   }
