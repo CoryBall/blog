@@ -1,32 +1,118 @@
 import { UsersService } from '@blog/server/features/users';
-import { AuthPayload } from '@blog/server/features/auth';
-import { ApolloError } from 'apollo-server-express';
+import { AuthPayload, GithubAuthResult } from '@blog/server/features/auth';
 import { sign, verify } from 'jsonwebtoken';
 import { Request } from 'express';
 import LoggerService from '@blog/server/features/logger';
 import { Inject, Service } from 'typedi';
-import { AuthConfig } from '@blog/server/config';
+import {
+  AuthConfig,
+  GithubConfig,
+  RoleValues,
+  SocialProviders,
+} from '@blog/server/config';
 import { PrismaClient, Role, User } from '@blog/prisma';
+import { Octokit } from '@octokit/core';
+import axios from 'axios';
+import { ApolloError } from 'apollo-server-express';
 
-@Service()
+@Service('AuthService')
 class AuthService {
-  @Inject()
+  @Inject('AuthConfig')
   private readonly authConfig: AuthConfig;
-  @Inject()
+  @Inject('GithubConfig')
+  private readonly githubConfig: GithubConfig;
+  @Inject('UsersService')
   private readonly usersService: UsersService;
   @Inject()
-  private loggerService: LoggerService;
+  private readonly loggerService: LoggerService;
 
-  prisma = new PrismaClient();
+  private readonly prisma = new PrismaClient();
 
-  async login(email: string, password: string): Promise<AuthPayload> {
-    const user = await this.usersService.findByEmail(email);
-    if (!user) throw new ApolloError('Invalid email or password');
-    const role = await this.findRoleByUserId(user.id);
-    if (!role) throw new ApolloError('User does not have a role');
-    if (!user?.isDeleted) throw new ApolloError('account is inactive');
-    // if (!user?.validatePassword(password))
-    if (password === '') throw new ApolloError('Invalid email or password');
+  async login(code: string): Promise<AuthPayload> {
+    let user: User;
+    let role: Role;
+
+    const tokenResult = await axios.post<GithubAuthResult>(
+      'https://github.com/login/oauth/access_token',
+      null,
+      {
+        params: {
+          client_id: this.githubConfig.clientId,
+          client_secret: this.githubConfig.clientSecret,
+          redirect_uri: this.githubConfig.redirectUri,
+          code,
+        },
+        headers: {
+          Accept: 'application/json',
+          'Content-Type': 'application/json',
+        },
+      }
+    );
+
+    const octokit = new Octokit({
+      auth: tokenResult.data.access_token,
+    });
+
+    const { data: userData } = await octokit.request('GET /user');
+    if (userData.email == null) {
+      const emails = await octokit.request('GET /user/emails');
+      if (emails.data.length !== 0) {
+        userData.email = emails.data.find((x) => x.primary)?.email ?? null;
+      }
+    }
+
+    const existingUserCheck = await this.prisma.social.count({
+      where: { accountId: userData.id },
+    });
+
+    if (existingUserCheck === 0) {
+      // create new user
+      const roleCheck = await this.prisma.role.findUnique({
+        where: { name: RoleValues.User },
+      });
+      if (!roleCheck)
+        throw new ApolloError(
+          `Could not assign you to role ${RoleValues.User}`
+        );
+      role = roleCheck;
+      if (!userData.name || !userData.email)
+        throw new ApolloError('Could not authenticate with GitHub');
+
+      user = await this.usersService.create(
+        {
+          name: userData.name,
+          email: userData.email,
+        },
+        role
+      );
+      await this.prisma.social.create({
+        data: {
+          user: {
+            connect: {
+              id: user.id,
+            },
+          },
+          accountId: userData.id,
+          accountProfileUrl: userData.avatar_url,
+          accountUrl: userData.html_url,
+          type: SocialProviders.Github,
+        },
+      });
+    } else {
+      const githubUser = await this.prisma.social
+        .findFirst({
+          where: { accountId: userData.id, type: SocialProviders.Github },
+        })
+        .user();
+      if (!githubUser) throw new ApolloError('Could not retrieve user');
+      user = githubUser;
+      const userRole = await this.prisma.role.findUnique({
+        where: { id: user.roleId },
+      });
+      if (!userRole) throw new ApolloError('Could not retrieve user');
+      role = userRole;
+    }
+
     return this.signToken(user, role);
   }
 

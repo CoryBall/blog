@@ -21,10 +21,10 @@ class FileProgress {
   complete: number;
   @Field()
   total: number;
-  // @Field()
-  // percent(): number {
-  //   return (this.complete / this.total) * 100;
-  // }
+  @Field()
+  percent(): number {
+    return (this.complete / this.total) * 100;
+  }
   fileName: string;
 }
 

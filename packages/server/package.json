@@ -8,12 +8,11 @@
   "private": false,
   "scripts": {
     "watch": "tsc -w",
-    "start": "node -r dotenv/config ./dist/server.js dotenv_config_path=env/dev.env",
+    "start": "node -r dotenv/config ./dist/server.js",
     "build": "tsc",
     "start:prod": "node -r dotenv/config ./dist/server.js",
-    "dev": "nodemon --watch .env --watch ./src -r dotenv/config --exec ts-node --files src/server.ts dotenv_config_path=env/dev.env",
+    "dev": "nodemon",
     "lint": "eslint ./src/** --fix",
-    "precommit": "lint-staged",
     "test:unit": "dotenv -e tests/.env.test -- jest --testTimeout=10000 --detectOpenHandles --runInBand \"src/**/*.spec.ts\"",
     "test:integration": "dotenv -e tests/.env.test -- jest --testTimeout=10000 --detectOpenHandles --runInBand \"tests/**/*.integration.spec.ts\"",
     "test:env-unit": "npm run lint && npm run test:env-up && npm run prisma:init && npm run test:unit",
@@ -26,10 +25,12 @@
     "prisma:init": "dotenv -e ./tests/.env.test -- npx prisma migrate dev --name init"
   },
   "dependencies": {
+    "@octokit/core": "^3.5.1",
     "@prisma/client": "2.29.1",
     "apollo-server-express": "^2.22.2",
     "argon2": "^0.27.2",
     "aws-sdk": "^2.878.0",
+    "axios": "^0.21.1",
     "body-parser": "^1.19.0",
     "class-validator": "^0.13.1",
     "cors": "^2.8.5",
@@ -42,7 +43,8 @@
     "ioredis": "^4.24.6",
     "jsonwebtoken": "^8.5.1",
     "mime-types": "^2.1.30",
-    "reflect-metadata": "^0.1.13",
+    "reflect-metadata": "latest",
+    "tsconfig-paths": "^3.10.1",
     "type-graphql": "^1.1.1",
     "typedi": "^0.10.0",
     "uuid": "^8.3.2",
@@ -64,7 +66,6 @@
     "eslint": "^7.23.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-prettier": "^3.3.1",
-    "husky": "^6.0.0",
     "jest": "^26.6.3",
     "lint-staged": "^10.5.4",
     "nodemon": "^2.0.7",
@@ -74,15 +75,16 @@
   },
   "nodemonConfig": {
     "watch": [
-      "src"
+      "src",
+      ".env"
     ],
     "ext": ".ts,.js",
-    "ignore": [],
-    "exec": "ts-node ./src/server.ts"
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "yarn precommit"
-    }
+    "ignore": [
+      "**/*.test.ts",
+      "**/*.spec.ts",
+      ".git",
+      "node_modules"
+    ],
+    "exec": "ts-node -r tsconfig-paths/register -r dotenv/config --files ./src/server.ts"
   }
 }

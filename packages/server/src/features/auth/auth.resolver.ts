@@ -1,22 +1,19 @@
 import { Arg, Mutation, Resolver } from 'type-graphql';
-import { AuthService } from '@blog/server/features/auth';
-import { AuthPayload, Credentials } from '@blog/server/features/auth';
+import { AuthService, AuthPayload } from '@blog/server/features/auth';
 import { Inject, Service } from 'typedi';
 
 @Service()
 @Resolver()
 class AuthResolver {
-  @Inject()
-  private authService: AuthService;
+  // constructor(private readonly authService: AuthService) {}
+  @Inject('AuthService')
+  private readonly authService: AuthService;
 
   @Mutation(() => AuthPayload, { nullable: true })
   async login(
-    @Arg('credentials', { nullable: false }) credentials: Credentials
+    @Arg('code', { nullable: false }) code: string
   ): Promise<AuthPayload> {
-    return await this.authService.login(
-      credentials.email,
-      credentials.password
-    );
+    return await this.authService.login(code);
   }
 }
 

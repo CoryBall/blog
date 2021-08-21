@@ -50,7 +50,7 @@ model Social {
   userId            String    @db.Uuid
   user              User      @relation(fields: [userId], references: [id])
   type              String
-  accountId         String
+  accountId         Int
   accountUrl        String
   accountProfileUrl String
 

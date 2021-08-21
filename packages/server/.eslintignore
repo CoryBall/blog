@@ -2,3 +2,4 @@ src/migrations
 dist
 node_modules
 Dockerfile
+prisma

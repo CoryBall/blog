@@ -43,7 +43,7 @@ export type Social = {
   id: string
   userId: string
   type: string
-  accountId: string
+  accountId: number
   accountUrl: string
   accountProfileUrl: string
 }
@@ -92,7 +92,7 @@ export type PostsViewedByUsers = {
 /**
  * ##  Prisma Client ʲˢ
  * 
- * Type-safe database client for TypeScript & Node.js (ORM replacement)
+ * Type-safe database client for TypeScript & Node.js
  * @example
  * ```
  * const prisma = new PrismaClient()
@@ -138,7 +138,7 @@ export class PrismaClient<
     /**
    * ##  Prisma Client ʲˢ
    * 
-   * Type-safe database client for TypeScript & Node.js (ORM replacement)
+   * Type-safe database client for TypeScript & Node.js
    * @example
    * ```
    * const prisma = new PrismaClient()
@@ -299,8 +299,8 @@ export namespace Prisma {
   export import Decimal = runtime.Decimal
 
   /**
-   * Prisma Client JS version: 2.28.0
-   * Query Engine version: 89facabd0366f63911d089156a7a70125bfbcd27
+   * Prisma Client JS version: 2.29.1
+   * Query Engine version: 1be4cd60b89afa04b192acb1ef47758a39810f3a
    */
   export type PrismaVersion = {
     client: string
@@ -2569,17 +2569,29 @@ export namespace Prisma {
   export type AggregateSocial = {
     _count: SocialCountAggregateOutputType | null
     count: SocialCountAggregateOutputType | null
+    _avg: SocialAvgAggregateOutputType | null
+    avg: SocialAvgAggregateOutputType | null
+    _sum: SocialSumAggregateOutputType | null
+    sum: SocialSumAggregateOutputType | null
     _min: SocialMinAggregateOutputType | null
     min: SocialMinAggregateOutputType | null
     _max: SocialMaxAggregateOutputType | null
     max: SocialMaxAggregateOutputType | null
   }
 
+  export type SocialAvgAggregateOutputType = {
+    accountId: number | null
+  }
+
+  export type SocialSumAggregateOutputType = {
+    accountId: number | null
+  }
+
   export type SocialMinAggregateOutputType = {
     id: string | null
     userId: string | null
     type: string | null
-    accountId: string | null
+    accountId: number | null
     accountUrl: string | null
     accountProfileUrl: string | null
   }
@@ -2588,7 +2600,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     type: string | null
-    accountId: string | null
+    accountId: number | null
     accountUrl: string | null
     accountProfileUrl: string | null
   }
@@ -2603,6 +2615,14 @@ export namespace Prisma {
     _all: number
   }
 
+
+  export type SocialAvgAggregateInputType = {
+    accountId?: true
+  }
+
+  export type SocialSumAggregateInputType = {
+    accountId?: true
+  }
 
   export type SocialMinAggregateInputType = {
     id?: true
@@ -2679,6 +2699,26 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: SocialAvgAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_avg`
+    **/
+    avg?: SocialAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: SocialSumAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_sum`
+    **/
+    sum?: SocialSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: SocialMinAggregateInputType
@@ -2717,6 +2757,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: SocialCountAggregateInputType | true
+    _avg?: SocialAvgAggregateInputType
+    _sum?: SocialSumAggregateInputType
     _min?: SocialMinAggregateInputType
     _max?: SocialMaxAggregateInputType
   }
@@ -2726,10 +2768,12 @@ export namespace Prisma {
     id: string
     userId: string
     type: string
-    accountId: string
+    accountId: number
     accountUrl: string
     accountProfileUrl: string
     _count: SocialCountAggregateOutputType | null
+    _avg: SocialAvgAggregateOutputType | null
+    _sum: SocialSumAggregateOutputType | null
     _min: SocialMinAggregateOutputType | null
     _max: SocialMaxAggregateOutputType | null
   }
@@ -6316,7 +6360,7 @@ export namespace Prisma {
     userId?: StringFilter | string
     user?: XOR<UserRelationFilter, UserWhereInput>
     type?: StringFilter | string
-    accountId?: StringFilter | string
+    accountId?: IntFilter | number
     accountUrl?: StringFilter | string
     accountProfileUrl?: StringFilter | string
   }
@@ -6341,7 +6385,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter | string
     userId?: StringWithAggregatesFilter | string
     type?: StringWithAggregatesFilter | string
-    accountId?: StringWithAggregatesFilter | string
+    accountId?: IntWithAggregatesFilter | number
     accountUrl?: StringWithAggregatesFilter | string
     accountProfileUrl?: StringWithAggregatesFilter | string
   }
@@ -6595,7 +6639,7 @@ export namespace Prisma {
   export type SocialCreateInput = {
     id?: string
     type: string
-    accountId: string
+    accountId: number
     accountUrl: string
     accountProfileUrl: string
     user: UserCreateNestedOneWithoutSocialsInput
@@ -6605,7 +6649,7 @@ export namespace Prisma {
     id?: string
     userId: string
     type: string
-    accountId: string
+    accountId: number
     accountUrl: string
     accountProfileUrl: string
   }
@@ -6613,7 +6657,7 @@ export namespace Prisma {
   export type SocialUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    accountId?: StringFieldUpdateOperationsInput | string
+    accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
     accountProfileUrl?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutSocialsInput
@@ -6623,7 +6667,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    accountId?: StringFieldUpdateOperationsInput | string
+    accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
     accountProfileUrl?: StringFieldUpdateOperationsInput | string
   }
@@ -6632,7 +6676,7 @@ export namespace Prisma {
     id?: string
     userId: string
     type: string
-    accountId: string
+    accountId: number
     accountUrl: string
     accountProfileUrl: string
   }
@@ -6640,7 +6684,7 @@ export namespace Prisma {
   export type SocialUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    accountId?: StringFieldUpdateOperationsInput | string
+    accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
     accountProfileUrl?: StringFieldUpdateOperationsInput | string
   }
@@ -6649,7 +6693,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    accountId?: StringFieldUpdateOperationsInput | string
+    accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
     accountProfileUrl?: StringFieldUpdateOperationsInput | string
   }
@@ -7020,14 +7064,6 @@ export namespace Prisma {
     not?: NestedIntFilter | number
   }
 
-  export type StringNullableListFilter = {
-    equals?: Enumerable<string> | null
-    has?: string | null
-    hasEvery?: Enumerable<string>
-    hasSome?: Enumerable<string>
-    isEmpty?: boolean
-  }
-
   export type IntWithAggregatesFilter = {
     equals?: number
     in?: Enumerable<number>
@@ -7067,6 +7103,14 @@ export namespace Prisma {
      * 
     **/
     max?: NestedIntFilter
+  }
+
+  export type StringNullableListFilter = {
+    equals?: Enumerable<string> | null
+    has?: string | null
+    hasEvery?: Enumerable<string>
+    hasSome?: Enumerable<string>
+    isEmpty?: boolean
   }
 
   export type PostRelationFilter = {
@@ -7326,6 +7370,14 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
+  }
+
   export type UserUpdateOneRequiredWithoutSocialsInput = {
     create?: XOR<UserCreateWithoutSocialsInput, UserUncheckedCreateWithoutSocialsInput>
     connectOrCreate?: UserCreateOrConnectWithoutSocialsInput
@@ -7374,14 +7426,6 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<PostsLikedByUsersCreateOrConnectWithoutPostInput>
     createMany?: PostsLikedByUsersCreateManyPostInputEnvelope
     connect?: Enumerable<PostsLikedByUsersWhereUniqueInput>
-  }
-
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
   }
 
   export type PostUpdateviewsIpsInput = {
@@ -7761,7 +7805,7 @@ export namespace Prisma {
   export type SocialCreateWithoutUserInput = {
     id?: string
     type: string
-    accountId: string
+    accountId: number
     accountUrl: string
     accountProfileUrl: string
   }
@@ -7769,7 +7813,7 @@ export namespace Prisma {
   export type SocialUncheckedCreateWithoutUserInput = {
     id?: string
     type: string
-    accountId: string
+    accountId: number
     accountUrl: string
     accountProfileUrl: string
   }
@@ -7897,7 +7941,7 @@ export namespace Prisma {
     id?: StringFilter | string
     userId?: StringFilter | string
     type?: StringFilter | string
-    accountId?: StringFilter | string
+    accountId?: IntFilter | number
     accountUrl?: StringFilter | string
     accountProfileUrl?: StringFilter | string
   }
@@ -8511,7 +8555,7 @@ export namespace Prisma {
   export type SocialCreateManyUserInput = {
     id?: string
     type: string
-    accountId: string
+    accountId: number
     accountUrl: string
     accountProfileUrl: string
   }
@@ -8578,7 +8622,7 @@ export namespace Prisma {
   export type SocialUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    accountId?: StringFieldUpdateOperationsInput | string
+    accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
     accountProfileUrl?: StringFieldUpdateOperationsInput | string
   }
@@ -8586,7 +8630,7 @@ export namespace Prisma {
   export type SocialUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    accountId?: StringFieldUpdateOperationsInput | string
+    accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
     accountProfileUrl?: StringFieldUpdateOperationsInput | string
   }
@@ -8594,7 +8638,7 @@ export namespace Prisma {
   export type SocialUncheckedUpdateManyWithoutSocialsInput = {
     id?: StringFieldUpdateOperationsInput | string
     type?: StringFieldUpdateOperationsInput | string
-    accountId?: StringFieldUpdateOperationsInput | string
+    accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
     accountProfileUrl?: StringFieldUpdateOperationsInput | string
   }
