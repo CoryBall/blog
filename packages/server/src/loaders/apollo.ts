@@ -1,19 +1,23 @@
 import { Application, Request, Response } from 'express';
 import { buildSchema } from 'type-graphql';
 import { ApolloServer } from 'apollo-server-express';
+import { ApolloServerPluginLandingPageGraphQLPlayground } from 'apollo-server-core';
+import Redis from 'ioredis';
+import * as http from 'http';
+import { Container } from 'typedi';
+import { RedisPubSub } from 'graphql-redis-subscriptions';
+import { execute, subscribe } from 'graphql';
+import { SubscriptionServer } from 'subscriptions-transport-ws';
 import {
   AuthResolver,
   UsersResolver,
   StorageResolver,
 } from '@blog/server/features/resolvers';
 import { GraphqlAuthChecker } from '@blog/server/features/auth';
-import Redis from 'ioredis';
-import { RedisPubSub } from 'graphql-redis-subscriptions';
-import * as http from 'http';
 import { ServerType } from '@blog/server/loaders/server.types';
-import { Container } from 'typedi';
 
 export default async (app: Application): Promise<ServerType> => {
+  const httpServer = http.createServer(app);
   const options: Redis.RedisOptions = {
     host: process.env.REDIS_HOST,
     port: parseInt(process.env.REDIS_PORT ?? '6379'),
@@ -25,30 +29,47 @@ export default async (app: Application): Promise<ServerType> => {
     publisher: new Redis(options),
     subscriber: new Redis(options),
   });
+  const schema = await buildSchema({
+    resolvers: [AuthResolver, UsersResolver, StorageResolver],
+    validate: true,
+    authChecker: GraphqlAuthChecker,
+    container: Container,
+    pubSub,
+  });
 
   const apolloServer = new ApolloServer({
-    schema: await buildSchema({
-      resolvers: [AuthResolver, UsersResolver, StorageResolver],
-      validate: true,
-      authChecker: GraphqlAuthChecker,
-      container: Container,
-      pubSub,
-    }),
+    schema,
     introspection: true,
-    playground: true,
-    uploads: false,
     context: ({ req, res }: { req: Request; res: Response }) => {
       return { req, res } as DataContext;
     },
+    plugins: [
+      {
+        async serverWillStart() {
+          console.log('Client connected for subscriptions');
+          return {
+            async drainServer() {
+              console.log('Client disconnected from subscriptions');
+              subscriptionServer.close();
+            },
+          };
+        },
+      },
+      ApolloServerPluginLandingPageGraphQLPlayground(),
+    ],
   });
+
+  await apolloServer.start();
 
   apolloServer.applyMiddleware({
     app,
     cors: false,
   });
 
-  const httpServer = http.createServer(app);
-  apolloServer.installSubscriptionHandlers(httpServer);
+  const subscriptionServer = SubscriptionServer.create(
+    { schema, execute, subscribe },
+    { server: httpServer, path: apolloServer.graphqlPath }
+  );
 
   return {
     apolloServer,

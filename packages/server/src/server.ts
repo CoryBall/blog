@@ -12,7 +12,7 @@ async function startServer() {
     `🚀 Server ready at http://localhost:${port}${server.apolloServer.graphqlPath}`
   );
   loggerService.logger.info(
-    `🚀 Subscriptions ready at ws://localhost:${port}${server.apolloServer.subscriptionsPath}`
+    `🚀 Subscriptions ready at ws://localhost:${port}${server.apolloServer.graphqlPath}`
   );
 }
 
