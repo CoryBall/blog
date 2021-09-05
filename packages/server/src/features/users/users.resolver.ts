@@ -9,7 +9,7 @@ import { UsersService } from '@blog/server/features/users';
 import { ApolloError } from 'apollo-server-express';
 import { Inject, Service } from 'typedi';
 import { User } from '@blog/prisma';
-import { UserModel } from '@blog/server/models/wrappers';
+import { UserModel } from '@blog/server/features/users';
 import { AuthService } from '@blog/server/features/auth';
 
 @Service()
