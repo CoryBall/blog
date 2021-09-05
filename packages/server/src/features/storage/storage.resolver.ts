@@ -20,6 +20,8 @@ import {
   StorageService,
 } from '@blog/server/features/storage';
 
+const uploadProgressTopic = 'UPLOAD_PROGRESS';
+
 @Service()
 @Resolver()
 class StorageResolver {
@@ -29,7 +31,7 @@ class StorageResolver {
   @Mutation(() => Image)
   async uploadImage(
     @Arg('file', () => GraphQLUpload, { nullable: false }) file: FileUpload,
-    @PubSub('UPLOAD_PROGRESS')
+    @PubSub(uploadProgressTopic)
     notifyAboutUploadProgress: Publisher<FileProgress>
   ): Promise<Image> {
     return await this.storageService.uploadImage(
