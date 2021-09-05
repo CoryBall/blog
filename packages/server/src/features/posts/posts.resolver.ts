@@ -20,6 +20,7 @@ import {
   PostViews,
   CreatePostInput,
   PostLikes,
+  EditPostInput,
 } from '@blog/server/features/posts';
 import { UserModel, UsersService } from '@blog/server/features/users';
 import { ApolloError } from 'apollo-server-express';
@@ -35,22 +36,6 @@ class PostsResolver {
   @Inject('UsersService')
   private readonly usersService: UsersService;
 
-  @Query(() => [PostModel], { nullable: false })
-  async allPosts(): Promise<Post[]> {
-    return (await this.postsService.all()) as PostModel[];
-  }
-
-  @Query(() => PostModel, { nullable: true })
-  async getPost(
-    @Ctx() { req }: DataContext,
-    @Arg('postId', () => ID, { nullable: false }) id: string,
-    @PubSub() pubSub: PubSubEngine
-  ): Promise<Post> {
-    const views = await this.postsService.addView(id, req?.user?.id);
-    await pubSub.publish(postViewTopic, views);
-    return (await this.postsService.find(id)) as PostModel;
-  }
-
   @Authorized()
   @Mutation(() => PostModel, { nullable: false })
   async createPost(
@@ -64,6 +49,12 @@ class PostsResolver {
     return await this.postsService.create(input, user.id);
   }
 
+  @Query(() => [PostModel], { nullable: false })
+  async allDrafts(@Ctx() { req }: DataContext): Promise<Post[]> {
+    if (!req?.user?.id) throw new UnauthorizedError();
+    return await this.postsService.drafts(req.user.id);
+  }
+
   @Authorized()
   @Mutation(() => PostModel, { nullable: false })
   async publishPost(
@@ -73,6 +64,29 @@ class PostsResolver {
     const post = await this.postsService.find(postId);
     if (post?.authorId !== req?.user?.id) throw new UnauthorizedError();
     return await this.postsService.publish(postId);
+  }
+
+  @Query(() => [PostModel], { nullable: false })
+  async allPosts(): Promise<Post[]> {
+    return (await this.postsService.all()) as PostModel[];
+  }
+
+  @Query(() => PostModel, { nullable: true })
+  async getPost(
+    @Ctx() { req }: DataContext,
+    @Arg('postId', () => ID, { nullable: true }) id: string,
+    @Arg('slug', () => String, { nullable: true }) slug: string,
+    @PubSub() pubSub: PubSubEngine
+  ): Promise<Post | null> {
+    if (!id && !slug)
+      throw new ApolloError("Must specify either Post's ID or slug");
+    const post = await this.postsService.find(id);
+    if (post) {
+      const views = await this.postsService.addView(post.id, req?.user?.id);
+      await pubSub.publish(postViewTopic, views);
+    }
+    if (post?.authorId !== req?.user?.id && !post?.published) return null;
+    return post as PostModel;
   }
 
   @Authorized()
@@ -110,6 +124,18 @@ class PostsResolver {
       return false;
     }
     return true;
+  }
+
+  @Authorized()
+  @Mutation(() => PostModel)
+  async editPost(
+    @Ctx() { req }: DataContext,
+    @Arg('postId', () => ID, { nullable: false }) postId: string,
+    @Arg('input', () => EditPostInput, { nullable: false }) input: EditPostInput
+  ): Promise<Post> {
+    const post = await this.postsService.find(postId);
+    if (post?.authorId !== req?.user?.id) throw new UnauthorizedError();
+    return await this.postsService.edit(postId, input);
   }
 
   @Subscription(() => PostViews, { topics: postViewTopic })

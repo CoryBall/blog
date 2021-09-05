@@ -44,9 +44,42 @@ class PostsService {
     });
   }
 
+  async drafts(userId: string): Promise<Post[]> {
+    return await this.prisma.post.findMany({
+      where: {
+        isDeleted: false,
+        published: false,
+        authorId: userId,
+      },
+      include: {
+        author: {
+          include: {
+            socials: true,
+          },
+        },
+      },
+    });
+  }
+
+  async publish(id: string): Promise<Post> {
+    return await this.prisma.post.update({
+      where: { id },
+      data: {
+        published: true,
+      },
+      include: {
+        author: {
+          include: {
+            socials: true,
+          },
+        },
+      },
+    });
+  }
+
   async all(): Promise<Post[]> {
     return await this.prisma.post.findMany({
-      where: { isDeleted: false },
+      where: { isDeleted: false, published: true },
       include: {
         author: {
           include: {
@@ -73,22 +106,6 @@ class PostsService {
   async findBySlug(slug: string): Promise<Post | null> {
     return await this.prisma.post.findUnique({
       where: { slug },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
-        },
-      },
-    });
-  }
-
-  async publish(id: string): Promise<Post> {
-    return await this.prisma.post.update({
-      where: { id },
-      data: {
-        published: true,
-      },
       include: {
         author: {
           include: {
