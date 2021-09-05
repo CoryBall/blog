@@ -192,11 +192,14 @@ class PostsService {
     };
   }
 
-  async addLike(
-    id: string,
-    userId: string | undefined = undefined
-  ): Promise<PostLikes> {
-    if (userId) {
+  async addLike(id: string, userId: string): Promise<PostLikes> {
+    const alreadyLiked = await this.prisma.postsLikedByUsers.count({
+      where: {
+        userId: userId,
+        postId: id,
+      },
+    });
+    if (!alreadyLiked) {
       await this.prisma.postsLikedByUsers.create({
         data: {
           user: {
@@ -211,15 +214,15 @@ class PostsService {
           },
         },
       });
-    }
-    await this.prisma.post.update({
-      where: { id },
-      data: {
-        likes: {
-          increment: 1,
+      await this.prisma.post.update({
+        where: { id },
+        data: {
+          likes: {
+            increment: 1,
+          },
         },
-      },
-    });
+      });
+    }
 
     const post = await this.prisma.post.findUnique({
       where: { id },
@@ -249,6 +252,47 @@ class PostsService {
     return {
       users: users as UserModel[],
       likes: post?.likes ?? 0,
+    };
+  }
+
+  async removeLike(id: string, userId: string): Promise<PostLikes> {
+    const post = await this.prisma.post.findUnique({ where: { id } });
+    if (!post) throw new ApolloError('Could not find Post');
+    const updatedPost = await this.prisma.post.update({
+      where: { id },
+      data: { likes: { decrement: post.likes <= 0 ? 0 : 1 } },
+    });
+    await this.prisma.postsLikedByUsers.deleteMany({
+      where: {
+        userId,
+        postId: id,
+      },
+    });
+    const postLikes = await this.prisma.postsLikedByUsers.findMany({
+      where: {
+        userId,
+        postId: id,
+      },
+    });
+
+    const userIds = postLikes
+      ? postLikes.map((postLike) => postLike.userId)
+      : [];
+
+    const users = await this.prisma.user.findMany({
+      where: {
+        id: {
+          in: userIds,
+        },
+      },
+      include: {
+        socials: true,
+      },
+    });
+
+    return {
+      users: users as UserModel[],
+      likes: updatedPost?.likes ?? 0,
     };
   }
 

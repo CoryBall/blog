@@ -82,8 +82,29 @@ class PostsResolver {
     @Arg('postId', () => ID, { nullable: false }) postId: string,
     @PubSub() pubSub: PubSubEngine
   ): Promise<boolean> {
+    if (!req?.user?.id) throw new UnauthorizedError();
+
     try {
-      const postLikes = await this.postsService.addLike(postId, req?.user?.id);
+      const postLikes = await this.postsService.addLike(postId, req.user.id);
+      await pubSub.publish(postLikeTopic, postLikes);
+    } catch (error) {
+      return false;
+    }
+
+    return true;
+  }
+
+  @Authorized()
+  @Mutation(() => Boolean)
+  async unlikePost(
+    @Ctx() { req }: DataContext,
+    @Arg('postId', () => ID, { nullable: false }) postId: string,
+    @PubSub() pubSub: PubSubEngine
+  ): Promise<boolean> {
+    if (!req?.user?.id) throw new UnauthorizedError();
+
+    try {
+      const postLikes = await this.postsService.removeLike(postId, req.user.id);
       await pubSub.publish(postLikeTopic, postLikes);
     } catch (error) {
       return false;
