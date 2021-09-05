@@ -19,12 +19,13 @@ import {
   PostModel,
   PostViews,
   CreatePostInput,
+  PostLikes,
 } from '@blog/server/features/posts';
 import { UserModel, UsersService } from '@blog/server/features/users';
 import { ApolloError } from 'apollo-server-express';
 
 const postViewTopic = 'POST_VIEW_UPDATE';
-// const postLikeTopic = 'POST_LIKE_UPDATE';
+const postLikeTopic = 'POST_LIKE_UPDATE';
 
 @Service()
 @Resolver()
@@ -63,9 +64,41 @@ class PostsResolver {
     return await this.postsService.create(input, user.id);
   }
 
+  @Authorized()
+  @Mutation(() => PostModel, { nullable: false })
+  async publishPost(
+    @Ctx() { req }: DataContext,
+    @Arg('postId', () => ID, { nullable: false }) postId: string
+  ): Promise<Post> {
+    const post = await this.postsService.find(postId);
+    if (post?.authorId !== req?.user?.id) throw new UnauthorizedError();
+    return await this.postsService.publish(postId);
+  }
+
+  @Authorized()
+  @Mutation(() => Boolean)
+  async likePost(
+    @Ctx() { req }: DataContext,
+    @Arg('postId', () => ID, { nullable: false }) postId: string,
+    @PubSub() pubSub: PubSubEngine
+  ): Promise<boolean> {
+    try {
+      const postLikes = await this.postsService.addLike(postId, req?.user?.id);
+      await pubSub.publish(postLikeTopic, postLikes);
+    } catch (error) {
+      return false;
+    }
+    return true;
+  }
+
   @Subscription(() => PostViews, { topics: postViewTopic })
   postViews(@Root() postView: PostViews): PostViews {
     return postView;
+  }
+
+  @Subscription(() => PostLikes, { topics: postLikeTopic })
+  postLikes(@Root() postLike: PostLikes): PostLikes {
+    return postLike;
   }
 }
 
