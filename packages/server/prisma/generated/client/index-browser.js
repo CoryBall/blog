@@ -110,6 +110,16 @@ exports.Prisma.PostScalarFieldEnum = makeEnum({
   authorId: 'authorId'
 });
 
+exports.Prisma.CommentScalarFieldEnum = makeEnum({
+  id: 'id',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  isDeleted: 'isDeleted',
+  body: 'body',
+  authorId: 'authorId',
+  postId: 'postId'
+});
+
 exports.Prisma.PostsLikedByUsersScalarFieldEnum = makeEnum({
   postId: 'postId',
   userId: 'userId',
@@ -138,6 +148,7 @@ exports.Prisma.ModelName = makeEnum({
   Role: 'Role',
   Social: 'Social',
   Post: 'Post',
+  Comment: 'Comment',
   PostsLikedByUsers: 'PostsLikedByUsers',
   PostsViewedByUsers: 'PostsViewedByUsers'
 });

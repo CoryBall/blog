@@ -34,6 +34,7 @@ model User{
   socials           Social[]
   likedPosts        PostsLikedByUsers[]
   viewedPosts       PostsViewedByUsers[]
+  comments          Comment[]
   @@map("users")
 }
 
@@ -77,8 +78,23 @@ model Post {
   likedUsers        PostsLikedByUsers[]
   author            User      @relation(fields: [authorId], references: [id])
   authorId          String    @db.Uuid
-
+  comments          Comment[]
   @@map("posts")
+}
+
+model Comment {
+  // Entity Base
+  id                String    @id @db.Uuid @default(uuid())
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  isDeleted         Boolean   @default(false)
+
+  // Comment
+  body              String
+  author            User      @relation(fields: [authorId], references: [id])
+  authorId          String    @db.Uuid
+  post              Post      @relation(fields: [postId], references: [id])
+  postId            String    @db.Uuid
 }
 
 model PostsLikedByUsers {
