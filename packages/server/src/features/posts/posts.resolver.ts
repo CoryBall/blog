@@ -15,14 +15,14 @@ import {
 import { Inject, Service } from 'typedi';
 import { Post } from '@blog/prisma';
 import {
-  PostsService,
+  PostService,
   PostModel,
   PostViews,
   CreatePostInput,
   PostLikes,
   EditPostInput,
 } from '@blog/server/features/posts';
-import { UserModel, UsersService } from '@blog/server/features/users';
+import { UserModel, UserService } from '@blog/server/features/users';
 import { ApolloError } from 'apollo-server-express';
 
 const postViewTopic = 'POST_VIEW_UPDATE';
@@ -30,11 +30,11 @@ const postLikeTopic = 'POST_LIKE_UPDATE';
 
 @Service()
 @Resolver()
-class PostsResolver {
-  @Inject('PostsService')
-  private readonly postsService: PostsService;
-  @Inject('UsersService')
-  private readonly usersService: UsersService;
+class PostResolver {
+  @Inject('PostService')
+  private readonly postService: PostService;
+  @Inject('UserService')
+  private readonly userService: UserService;
 
   @Authorized()
   @Mutation(() => PostModel, { nullable: false })
@@ -44,15 +44,15 @@ class PostsResolver {
     input: CreatePostInput
   ): Promise<Post> {
     if (!req?.user?.id) throw new UnauthorizedError();
-    const user = (await this.usersService.findById(req?.user?.id)) as UserModel;
+    const user = (await this.userService.findById(req?.user?.id)) as UserModel;
     if (!user) throw new ApolloError('Could not verify user. Please log in.');
-    return await this.postsService.create(input, user.id);
+    return await this.postService.create(input, user.id);
   }
 
   @Query(() => [PostModel], { nullable: false })
   async allDrafts(@Ctx() { req }: DataContext): Promise<Post[]> {
     if (!req?.user?.id) throw new UnauthorizedError();
-    return await this.postsService.drafts(req.user.id);
+    return await this.postService.drafts(req.user.id);
   }
 
   @Authorized()
@@ -61,14 +61,14 @@ class PostsResolver {
     @Ctx() { req }: DataContext,
     @Arg('postId', () => ID, { nullable: false }) postId: string
   ): Promise<Post> {
-    const post = await this.postsService.find(postId);
+    const post = await this.postService.find(postId);
     if (post?.authorId !== req?.user?.id) throw new UnauthorizedError();
-    return await this.postsService.publish(postId);
+    return await this.postService.publish(postId);
   }
 
   @Query(() => [PostModel], { nullable: false })
   async allPosts(): Promise<Post[]> {
-    return (await this.postsService.all()) as PostModel[];
+    return (await this.postService.all()) as PostModel[];
   }
 
   @Query(() => PostModel, { nullable: true })
@@ -80,9 +80,9 @@ class PostsResolver {
   ): Promise<Post | null> {
     if (!id && !slug)
       throw new ApolloError("Must specify either Post's ID or slug");
-    const post = await this.postsService.find(id);
+    const post = await this.postService.find(id);
     if (post) {
-      const views = await this.postsService.addView(post.id, req?.user?.id);
+      const views = await this.postService.addView(post.id, req?.user?.id);
       await pubSub.publish(postViewTopic, views);
     }
     if (post?.authorId !== req?.user?.id && !post?.published) return null;
@@ -99,7 +99,7 @@ class PostsResolver {
     if (!req?.user?.id) throw new UnauthorizedError();
 
     try {
-      const postLikes = await this.postsService.addLike(postId, req.user.id);
+      const postLikes = await this.postService.addLike(postId, req.user.id);
       await pubSub.publish(postLikeTopic, postLikes);
     } catch (error) {
       return false;
@@ -118,7 +118,7 @@ class PostsResolver {
     if (!req?.user?.id) throw new UnauthorizedError();
 
     try {
-      const postLikes = await this.postsService.removeLike(postId, req.user.id);
+      const postLikes = await this.postService.removeLike(postId, req.user.id);
       await pubSub.publish(postLikeTopic, postLikes);
     } catch (error) {
       return false;
@@ -133,9 +133,9 @@ class PostsResolver {
     @Arg('postId', () => ID, { nullable: false }) postId: string,
     @Arg('input', () => EditPostInput, { nullable: false }) input: EditPostInput
   ): Promise<Post> {
-    const post = await this.postsService.find(postId);
+    const post = await this.postService.find(postId);
     if (post?.authorId !== req?.user?.id) throw new UnauthorizedError();
-    return await this.postsService.edit(postId, input);
+    return await this.postService.edit(postId, input);
   }
 
   @Subscription(() => PostViews, { topics: postViewTopic })
@@ -149,4 +149,4 @@ class PostsResolver {
   }
 }
 
-export default PostsResolver;
+export default PostResolver;

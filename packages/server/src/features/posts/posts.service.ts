@@ -9,8 +9,8 @@ import {
 import { UserModel } from '../users';
 import { ApolloError } from 'apollo-server-errors';
 
-@Service('PostsService')
-class PostsService {
+@Service('PostService')
+class PostService {
   private readonly prisma = new PrismaClient();
 
   async create(input: CreatePostInput, userId: string): Promise<Post> {
@@ -333,4 +333,4 @@ class PostsService {
   }
 }
 
-export default PostsService;
+export default PostService;

@@ -1,5 +1,5 @@
-import PostsService from './posts.service';
-import PostsResolver from './posts.resolver';
+import PostService from './posts.service';
+import PostResolver from './posts.resolver';
 export * from './posts.types';
 
-export { PostsService, PostsResolver };
+export { PostService, PostResolver };

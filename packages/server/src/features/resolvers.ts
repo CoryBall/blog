@@ -1,6 +1,13 @@
 import { AuthResolver } from '@blog/server/features/auth';
 import { StorageResolver } from '@blog/server/features/storage';
-import { UsersResolver } from '@blog/server/features/users';
-import { PostsResolver } from '@blog/server/features/posts';
+import { UserResolver } from '@blog/server/features/users';
+import { PostResolver } from '@blog/server/features/posts';
+import { CommentResolver } from '@blog/server/features/comments';
 
-export { AuthResolver, UsersResolver, PostsResolver, StorageResolver };
+export {
+  AuthResolver,
+  UserResolver,
+  PostResolver,
+  CommentResolver,
+  StorageResolver,
+};
