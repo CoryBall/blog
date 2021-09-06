@@ -1,4 +1,4 @@
-import { UsersService } from '@blog/server/features/users';
+import { UserService } from '@blog/server/features/users';
 import { AuthPayload, GithubAuthResult } from '@blog/server/features/auth';
 import { sign, verify } from 'jsonwebtoken';
 import { Request } from 'express';
@@ -21,8 +21,8 @@ class AuthService {
   private readonly authConfig: AuthConfig;
   @Inject('GithubConfig')
   private readonly githubConfig: GithubConfig;
-  @Inject('UsersService')
-  private readonly usersService: UsersService;
+  @Inject('UserService')
+  private readonly userService: UserService;
   @Inject()
   private readonly loggerService: LoggerService;
 
@@ -78,7 +78,7 @@ class AuthService {
       if (!userData.name || !userData.email)
         throw new ApolloError('Could not authenticate with GitHub');
 
-      user = await this.usersService.create(
+      user = await this.userService.create(
         {
           name: userData.name,
           email: userData.email,

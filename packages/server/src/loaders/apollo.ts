@@ -10,8 +10,9 @@ import { execute, subscribe } from 'graphql';
 import { SubscriptionServer } from 'subscriptions-transport-ws';
 import {
   AuthResolver,
-  UsersResolver,
-  PostsResolver,
+  UserResolver,
+  PostResolver,
+  CommentResolver,
   StorageResolver,
 } from '@blog/server/features/resolvers';
 import { GraphqlAuthChecker } from '@blog/server/features/auth';
@@ -31,7 +32,13 @@ export default async (app: Application): Promise<ServerType> => {
     subscriber: new Redis(options),
   });
   const schema = await buildSchema({
-    resolvers: [AuthResolver, UsersResolver, PostsResolver, StorageResolver],
+    resolvers: [
+      AuthResolver,
+      UserResolver,
+      PostResolver,
+      CommentResolver,
+      StorageResolver,
+    ],
     validate: true,
     authChecker: GraphqlAuthChecker,
     container: Container,

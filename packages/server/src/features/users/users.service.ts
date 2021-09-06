@@ -2,8 +2,8 @@ import { PrismaClient, Role, User } from '@blog/prisma';
 import { Service } from 'typedi';
 import { CreateUserInput } from '@blog/server/features/users';
 
-@Service('UsersService')
-class UsersService {
+@Service('UserService')
+class UserService {
   private readonly prisma = new PrismaClient();
 
   async findByEmail(email: string): Promise<User | null> {
@@ -29,4 +29,4 @@ class UsersService {
   }
 }
 
-export default UsersService;
+export default UserService;
