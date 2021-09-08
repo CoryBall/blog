@@ -10,7 +10,7 @@
     "watch": "tsc -w",
     "start": "node -r dotenv/config ./dist/server.js",
     "build": "tsc",
-    "start:prod": "node -r dotenv/config ./dist/server.js",
+    "start:prod": "node -r ts-node/register/transpile-only -r dotenv/config -r tsconfig-paths/register ./dist/server.js",
     "dev": "nodemon",
     "lint": "eslint ./src/** --fix",
     "test:unit": "dotenv -e tests/.env.test -- jest --testTimeout=10000 --detectOpenHandles --runInBand \"src/**/*.spec.ts\"",
@@ -75,6 +75,7 @@
     "prettier": "^2.2.1",
     "prisma": "2.29.1",
     "ts-node": "^9.1.1",
+    "tscpaths": "^0.0.9",
     "typescript": "^4.3.5"
   },
   "nodemonConfig": {
