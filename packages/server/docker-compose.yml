@@ -1,17 +1,17 @@
 version: '3.9'
 services:
-  # server:
-  #   container_name: blog_api
-  #   build:
-  #     context: .
-  #     dockerfile: ./Dockerfile
-  #   # image: docker.pkg.github.com/coryball/backend-template/template-server
-  #   ports:
-  #     - '4000:4000'
-  #   depends_on:
-  #     - postgres
-  #     - redis
-  #   env_file: .env
+  server:
+    container_name: blog_api
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    # image: docker.pkg.github.com/coryball/backend-template/template-server
+    ports:
+      - '4000:4000'
+    depends_on:
+      - postgres
+      - redis
+    env_file: prod.env
   postgres:
     container_name: blog_database
     image: postgres:13.3
