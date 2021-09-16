@@ -13,7 +13,7 @@ class GithubAuthResult {
   token_type: string;
 }
 
-@ObjectType()
+@ObjectType("Role")
 class RoleModel implements Role {
   @Field(() => ID, { nullable: false })
   id: string;
@@ -21,7 +21,7 @@ class RoleModel implements Role {
   name: string;
 }
 
-@ObjectType()
+@ObjectType("Social")
 class SocialModel implements Social {
   @Field(() => ID, { nullable: false })
   id: string;

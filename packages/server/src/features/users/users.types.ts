@@ -8,7 +8,7 @@ class CreateUserInput {
   email: string;
 }
 
-@ObjectType()
+@ObjectType("User")
 class UserModel implements User {
   @Field(() => ID, { nullable: false })
   id: string;

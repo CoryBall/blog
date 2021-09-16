@@ -1,8 +1,5 @@
-mutation login($credentials: Credentials!) {
-  login(credentials: $credentials) {
-    id
-    firstName
-    lastName
+mutation login($code: String!) {
+  login(code: $code) {
     bearer
   }
 }

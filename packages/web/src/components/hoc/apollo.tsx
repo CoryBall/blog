@@ -10,7 +10,7 @@ import apolloLogger from 'apollo-link-logger'
 import { onError } from '@apollo/client/link/error'
 import fetch from 'isomorphic-unfetch'
 import merge from 'deepmerge'
-import isEqual from 'lodash/isEqual'
+import isEqual from 'lodash.isequal'
 import AppConfig from '../../config/app.config'
 
 export const APOLLO_STATE_PROP_NAME = '__APOLLO_STATE__'
@@ -34,7 +34,7 @@ function createHttpLink(bearer?: string): HttpLink {
     credentials: 'same-origin',
     fetch,
     headers: {
-      Authorization: !bearer ? '' : `Bearer: ${bearer}`,
+      Authorization: !bearer ? '' : `Bearer ${bearer}`,
     },
   })
 }

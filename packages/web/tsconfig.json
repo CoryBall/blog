@@ -3,13 +3,28 @@
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
-      "@blog/web": [
-        "./src"
-      ],
       "@blog/web/*": [
         "./src/*"
+      ],
+      "@blog/components/*": [
+        "./src/components/*"
+      ],
+      "@blog/state/*": [
+        "./src/state/*"
+      ],
+      "@blog/state": [
+        "./src/state"
+      ],
+      "@blog/types": [
+        "./src/graphql/generatedTypes"
       ]
-    }
+    },
+    "allowJs": true,
+    "skipLibCheck": true,
+    "strict": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true,
+    "isolatedModules": true,
+    "jsx": "preserve"
   }
 }
-  

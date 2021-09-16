@@ -2,6 +2,7 @@ version: '3.9'
 services:
   server:
     container_name: blog_api
+    restart: unless-stopped
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -14,6 +15,7 @@ services:
     env_file: prod.env
   postgres:
     container_name: blog_database
+    restart: unless-stopped
     image: postgres:13.3
     ports:
       - '5432:5432'
