@@ -1,135 +1,250 @@
-import { gql } from '@apollo/client'
-import * as Apollo from '@apollo/client'
-export type Maybe<T> = T | null
-export type Exact<T extends { [key: string]: unknown }> = {
-  [K in keyof T]: T[K]
-}
-export type MakeOptional<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]?: Maybe<T[SubKey]> }
-export type MakeMaybe<T, K extends keyof T> = Omit<T, K> &
-  { [SubKey in K]: Maybe<T[SubKey]> }
-const defaultOptions = {}
+import { gql } from '@apollo/client';
+import * as Apollo from '@apollo/client';
+export type Maybe<T> = T | null;
+export type Exact<T extends { [key: string]: unknown }> = { [K in keyof T]: T[K] };
+export type MakeOptional<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]?: Maybe<T[SubKey]> };
+export type MakeMaybe<T, K extends keyof T> = Omit<T, K> & { [SubKey in K]: Maybe<T[SubKey]> };
+const defaultOptions =  {}
 /** All built-in and custom scalars, mapped to their actual values */
 export type Scalars = {
-  ID: string
-  String: string
-  Boolean: boolean
-  Int: number
-  Float: number
+  ID: string;
+  String: string;
+  Boolean: boolean;
+  Int: number;
+  Float: number;
   /** The javascript `Date` as string. Type represents date and time as the ISO Date string. */
-  DateTime: any
+  DateTime: any;
   /** The `Upload` scalar type represents a file upload. */
-  Upload: any
-}
+  Upload: any;
+};
 
 export type AuthPayload = {
-  __typename?: 'AuthPayload'
-  bearer: Scalars['String']
-  id: Scalars['ID']
-  firstName: Scalars['String']
-  lastName: Scalars['String']
-}
+  __typename?: 'AuthPayload';
+  bearer: Scalars['String'];
+};
 
-export type Credentials = {
-  email: Scalars['String']
-  password: Scalars['String']
-}
+export type Comment = {
+  __typename?: 'Comment';
+  id: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  isDeleted: Scalars['Boolean'];
+  body: Scalars['String'];
+  authorId: Scalars['String'];
+  author: User;
+  postId: Scalars['String'];
+  post: Post;
+};
+
+export type CreateCommentInput = {
+  body: Scalars['String'];
+};
+
+export type CreatePostInput = {
+  title: Scalars['String'];
+  body: Scalars['String'];
+};
+
+
+export type EditPostInput = {
+  title: Scalars['String'];
+  body: Scalars['String'];
+};
 
 export type FileProgress = {
-  __typename?: 'FileProgress'
-  complete: Scalars['Float']
-  total: Scalars['Float']
-}
+  __typename?: 'FileProgress';
+  complete: Scalars['Float'];
+  total: Scalars['Float'];
+  percent: Scalars['Float'];
+};
 
 export type Image = {
-  __typename?: 'Image'
-  filename: Scalars['String']
-  mimetype: Scalars['String']
-  encoding: Scalars['String']
-  url: Scalars['String']
-}
+  __typename?: 'Image';
+  filename: Scalars['String'];
+  mimetype: Scalars['String'];
+  encoding: Scalars['String'];
+  url: Scalars['String'];
+};
 
 export type Mutation = {
-  __typename?: 'Mutation'
-  login?: Maybe<AuthPayload>
-  uploadImage: Image
-}
+  __typename?: 'Mutation';
+  login?: Maybe<AuthPayload>;
+  uploadImage: Image;
+  createPost: Post;
+  publishPost: Post;
+  likePost: Scalars['Boolean'];
+  unlikePost: Scalars['Boolean'];
+  editPost: Post;
+  createComment: Comment;
+  deleteComment: Scalars['Boolean'];
+};
+
 
 export type MutationLoginArgs = {
-  credentials: Credentials
-}
+  code: Scalars['String'];
+};
+
 
 export type MutationUploadImageArgs = {
-  file: Scalars['Upload']
-}
+  file: Scalars['Upload'];
+};
+
+
+export type MutationCreatePostArgs = {
+  input: CreatePostInput;
+};
+
+
+export type MutationPublishPostArgs = {
+  postId: Scalars['ID'];
+};
+
+
+export type MutationLikePostArgs = {
+  postId: Scalars['ID'];
+};
+
+
+export type MutationUnlikePostArgs = {
+  postId: Scalars['ID'];
+};
+
+
+export type MutationEditPostArgs = {
+  input: EditPostInput;
+  postId: Scalars['ID'];
+};
+
+
+export type MutationCreateCommentArgs = {
+  input: CreateCommentInput;
+  postId: Scalars['ID'];
+};
+
+
+export type MutationDeleteCommentArgs = {
+  commentId: Scalars['ID'];
+};
+
+export type Post = {
+  __typename?: 'Post';
+  id: Scalars['String'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  isDeleted: Scalars['Boolean'];
+  slug: Scalars['String'];
+  title: Scalars['String'];
+  body: Scalars['String'];
+  published: Scalars['Boolean'];
+  views: Scalars['Float'];
+  likes: Scalars['Float'];
+  authorId: Scalars['String'];
+  author: User;
+};
+
+export type PostLikes = {
+  __typename?: 'PostLikes';
+  users: Array<User>;
+  likes: Scalars['Float'];
+};
+
+export type PostViews = {
+  __typename?: 'PostViews';
+  users: Array<User>;
+  views: Scalars['Float'];
+};
 
 export type Query = {
-  __typename?: 'Query'
-  me: User
-}
+  __typename?: 'Query';
+  me: User;
+  allDrafts: Array<Post>;
+  allPosts: Array<Post>;
+  getPost?: Maybe<Post>;
+  allComments: Array<Comment>;
+};
+
+
+export type QueryGetPostArgs = {
+  slug?: Maybe<Scalars['String']>;
+  postId?: Maybe<Scalars['ID']>;
+};
+
+
+export type QueryAllCommentsArgs = {
+  postId: Scalars['ID'];
+};
 
 export type Role = {
-  __typename?: 'Role'
-  name: Scalars['String']
-}
+  __typename?: 'Role';
+  id: Scalars['ID'];
+  name: Scalars['String'];
+};
 
 export type Subscription = {
-  __typename?: 'Subscription'
-  uploadStatus: FileProgress
-}
+  __typename?: 'Subscription';
+  uploadStatus: FileProgress;
+  postViews: PostViews;
+  postLikes: PostLikes;
+  newPostComments: Comment;
+};
+
 
 export type SubscriptionUploadStatusArgs = {
-  fileName: Scalars['String']
-}
+  fileName: Scalars['String'];
+};
+
+
+export type SubscriptionNewPostCommentsArgs = {
+  postId: Scalars['String'];
+};
+
 
 export type User = {
-  __typename?: 'User'
-  id: Scalars['ID']
-  created: Scalars['DateTime']
-  modified: Scalars['DateTime']
-  deleted?: Maybe<Scalars['DateTime']>
-  firstName: Scalars['String']
-  lastName: Scalars['String']
-  fullName: Scalars['String']
-  title: Scalars['String']
-  phoneNumber: Scalars['String']
-  isActive: Scalars['Boolean']
-  roles: Array<Role>
-}
+  __typename?: 'User';
+  id: Scalars['ID'];
+  createdAt: Scalars['DateTime'];
+  updatedAt: Scalars['DateTime'];
+  isDeleted: Scalars['Boolean'];
+  name: Scalars['String'];
+  email: Scalars['String'];
+  roleId: Scalars['ID'];
+  role: Role;
+  image: Scalars['String'];
+};
 
 export type LoginMutationVariables = Exact<{
-  credentials: Credentials
-}>
+  code: Scalars['String'];
+}>;
 
-export type LoginMutation = { __typename?: 'Mutation' } & {
-  login?: Maybe<
-    { __typename?: 'AuthPayload' } & Pick<
-      AuthPayload,
-      'id' | 'firstName' | 'lastName' | 'bearer'
-    >
-  >
-}
 
-export type MeQueryVariables = Exact<{ [key: string]: never }>
+export type LoginMutation = (
+  { __typename?: 'Mutation' }
+  & { login?: Maybe<(
+    { __typename?: 'AuthPayload' }
+    & Pick<AuthPayload, 'bearer'>
+  )> }
+);
 
-export type MeQuery = { __typename?: 'Query' } & {
-  me: { __typename?: 'User' } & Pick<User, 'id' | 'firstName' | 'lastName'>
-}
+export type MeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MeQuery = (
+  { __typename?: 'Query' }
+  & { me: (
+    { __typename?: 'User' }
+    & Pick<User, 'id' | 'createdAt' | 'name' | 'email' | 'image'>
+  ) }
+);
+
 
 export const LoginDocument = gql`
-  mutation login($credentials: Credentials!) {
-    login(credentials: $credentials) {
-      id
-      firstName
-      lastName
-      bearer
-    }
+    mutation login($code: String!) {
+  login(code: $code) {
+    bearer
   }
-`
-export type LoginMutationFn = Apollo.MutationFunction<
-  LoginMutation,
-  LoginMutationVariables
->
+}
+    `;
+export type LoginMutationFn = Apollo.MutationFunction<LoginMutation, LoginMutationVariables>;
 
 /**
  * __useLoginMutation__
@@ -144,37 +259,28 @@ export type LoginMutationFn = Apollo.MutationFunction<
  * @example
  * const [loginMutation, { data, loading, error }] = useLoginMutation({
  *   variables: {
- *      credentials: // value for 'credentials'
+ *      code: // value for 'code'
  *   },
  * });
  */
-export function useLoginMutation(
-  baseOptions?: Apollo.MutationHookOptions<
-    LoginMutation,
-    LoginMutationVariables
-  >
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useMutation<LoginMutation, LoginMutationVariables>(
-    LoginDocument,
-    options
-  )
-}
-export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>
-export type LoginMutationResult = Apollo.MutationResult<LoginMutation>
-export type LoginMutationOptions = Apollo.BaseMutationOptions<
-  LoginMutation,
-  LoginMutationVariables
->
+export function useLoginMutation(baseOptions?: Apollo.MutationHookOptions<LoginMutation, LoginMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<LoginMutation, LoginMutationVariables>(LoginDocument, options);
+      }
+export type LoginMutationHookResult = ReturnType<typeof useLoginMutation>;
+export type LoginMutationResult = Apollo.MutationResult<LoginMutation>;
+export type LoginMutationOptions = Apollo.BaseMutationOptions<LoginMutation, LoginMutationVariables>;
 export const MeDocument = gql`
-  query me {
-    me {
-      id
-      firstName
-      lastName
-    }
+    query me {
+  me {
+    id
+    createdAt
+    name
+    email
+    image
   }
-`
+}
+    `;
 
 /**
  * __useMeQuery__
@@ -191,28 +297,25 @@ export const MeDocument = gql`
  *   },
  * });
  */
-export function useMeQuery(
-  baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options)
-}
-export function useMeLazyQuery(
-  baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>
-) {
-  const options = { ...defaultOptions, ...baseOptions }
-  return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options)
-}
-export type MeQueryHookResult = ReturnType<typeof useMeQuery>
-export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>
-export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>
+export function useMeQuery(baseOptions?: Apollo.QueryHookOptions<MeQuery, MeQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+      }
+export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery, MeQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MeQuery, MeQueryVariables>(MeDocument, options);
+        }
+export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
+export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
+export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
 
-export interface PossibleTypesResultData {
-  possibleTypes: {
-    [key: string]: string[]
-  }
-}
-const result: PossibleTypesResultData = {
-  possibleTypes: {},
-}
-export default result
+      export interface PossibleTypesResultData {
+        possibleTypes: {
+          [key: string]: string[]
+        }
+      }
+      const result: PossibleTypesResultData = {
+  "possibleTypes": {}
+};
+      export default result;
+    

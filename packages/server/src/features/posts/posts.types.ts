@@ -18,7 +18,7 @@ class EditPostInput {
   body: string;
 }
 
-@ObjectType()
+@ObjectType("Post")
 class PostModel implements Post {
   @Field()
   id: string;

@@ -1,0 +1,57 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+
+    body {
+        @apply min-h-full min-w-full bg-primary
+    }
+
+    .core {
+        @apply flex flex-col bg-primary
+    }
+
+    /*#region Header*/
+    .header {
+        @apply w-full my-14 bg-primary opacity-90 absolute top-0 z-50
+    }
+
+    .header .container {
+        @apply max-w-7xl px-5 mx-auto relative flex items-center justify-around
+    }
+
+    .header .icon-button {
+        @apply p-1 rounded-md
+    }
+
+    .header .current {
+        @apply text-secondary
+    }
+
+    .header .new {
+        @apply text-light hover:bg-gray-700 hover:text-white
+    }
+
+    .header .link {
+        @apply px-3 py-2 rounded-md text-2xl sm:text-sm font-medium font-mono
+    }
+    
+    .header .profile {
+        @apply origin-top-right absolute right-0 mt-2 w-36 rounded-md shadow-lg py-1 bg-light ring-1 ring-dark ring-opacity-5 focus:outline-none
+    }
+
+    .header .profile .link {
+        @apply block px-4 py-2 text-sm text-gray-700
+    }
+
+    .header .mobile-menu {
+        @apply -my-14 top-0 left-0 h-screen w-screen justify-center space-y-10 flex flex-col items-center text-center origin-center absolute bg-primary
+    }
+
+    .header .mobile-menu .title {
+        @apply w-1/2 text-5xl font-medium text-light border-b-2 border-secondary pb-2 font-serif
+    }
+
+    /*#endregion*/
+}

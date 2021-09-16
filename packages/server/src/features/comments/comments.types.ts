@@ -15,7 +15,7 @@ class NewCommentArgs {
   postId: string;
 }
 
-@ObjectType()
+@ObjectType("Comment")
 class CommentModel implements Comment {
   @Field()
   id: string;

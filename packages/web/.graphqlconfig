@@ -18,7 +18,7 @@
         "introspect": true
       },
       "Prod":  {
-        "url": "https://api.domain.com/graphql",
+        "url": "https://blog-api.coryball.dev/graphql",
         "headers": {
           "user-agent": "JS GraphQL"
         },

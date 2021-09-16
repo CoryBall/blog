@@ -7,11 +7,17 @@ class UserService {
   private readonly prisma = new PrismaClient();
 
   async findByEmail(email: string): Promise<User | null> {
-    return await this.prisma.user.findUnique({ where: { email: email } });
+    return await this.prisma.user.findUnique({
+      where: { email: email },
+      include: { socials: true },
+    });
   }
 
   async findById(id: string): Promise<User | null> {
-    return await this.prisma.user.findUnique({ where: { id: id } });
+    return await this.prisma.user.findUnique({
+      where: { id: id },
+      include: { socials: true },
+    });
   }
 
   async create(input: CreateUserInput, role: Role): Promise<User> {
@@ -25,6 +31,7 @@ class UserService {
         name: input.name,
         email: input.email,
       },
+      include: { socials: true },
     });
   }
 }

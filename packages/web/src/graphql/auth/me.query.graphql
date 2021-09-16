@@ -1,8 +1,9 @@
 query me {
   me {
     id
-    firstName
-    lastName
-    # bearer
+    createdAt
+    name
+    email
+    image
   }
 }

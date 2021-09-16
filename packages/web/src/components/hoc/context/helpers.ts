@@ -1,5 +1,4 @@
 import Cookies from 'js-cookie'
-import { UserToken } from '../../../types'
 
 export type AppContextPropsType = {
   isAuthenticated: boolean
@@ -10,14 +9,14 @@ export type AppContextPropsType = {
   user: UserToken | undefined
 }
 
-export function setCookies(token: UserToken): void {
+export function setCookies(token: string): void {
   const jsonToken = JSON.stringify(token)
   Cookies.set('userToken', jsonToken, { expires: 60 })
 }
 
-export function getTokensFromCookies<T>(): T {
+export function getTokensFromCookies(): string | null {
   const jsonToken = Cookies.get('userToken')
-  return JSON.parse(jsonToken) as T
+  return jsonToken ? JSON.parse(jsonToken) as string : null;
 }
 
 export function removeCookies(): void {

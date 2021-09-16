@@ -53,8 +53,8 @@ Prisma.validator = () => (val) => val
 
 // folder where the generated client is found
 const dirname = findSync(process.cwd(), [
-  '"prisma\\generated\\client"',
-  '"generated\\client"',
+  '"..\\server\\prisma\\generated\\client"',
+  '"server\\prisma\\generated\\client"',
 ], ['d'], ['d'], 1)[0] || __dirname
 
 /**
@@ -170,7 +170,7 @@ const config = {
       "value": "prisma-client-js"
     },
     "output": {
-      "value": "C:\\Repos\\Home\\blog\\blog\\packages\\server\\prisma\\generated\\client",
+      "value": "C:\\Repos\\Home\\blog\\packages\\server\\prisma\\generated\\client",
       "fromEnvVar": null
     },
     "config": {},
@@ -193,7 +193,7 @@ const config = {
   },
   "relativeEnvPaths": {
     "rootEnvPath": "..\\..\\..\\.env",
-    "schemaEnvPath": "..\\..\\..\\.env"
+    "schemaEnvPath": "..\\..\\..\\..\\web\\.env"
   },
   "relativePath": "..\\..",
   "clientVersion": "2.29.1",
@@ -227,14 +227,14 @@ Object.assign(exports, Prisma)
  * The process.cwd() annotation is only needed for https://github.com/vercel/vercel/tree/master/packages/now-next
 **/
 path.join(__dirname, 'query-engine-windows');
-path.join(process.cwd(), './prisma\generated\client\query-engine-windows');
+path.join(process.cwd(), './..\server\prisma\generated\client\query-engine-windows');
 
 path.join(__dirname, 'query-engine-linux-musl');
-path.join(process.cwd(), './prisma\generated\client\query-engine-linux-musl');
+path.join(process.cwd(), './..\server\prisma\generated\client\query-engine-linux-musl');
 
 /**
  * Annotation for `@vercel/nft`
  * The process.cwd() annotation is only needed for https://github.com/vercel/vercel/tree/master/packages/now-next
 **/
 path.join(__dirname, 'schema.prisma');
-path.join(process.cwd(), './prisma\generated\client\schema.prisma');
+path.join(process.cwd(), './..\server\prisma\generated\client\schema.prisma');
