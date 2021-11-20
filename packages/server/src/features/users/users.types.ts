@@ -8,7 +8,7 @@ class CreateUserInput {
   email: string;
 }
 
-@ObjectType("User")
+@ObjectType('User')
 class UserModel implements User {
   @Field(() => ID, { nullable: false })
   id: string;
@@ -39,7 +39,7 @@ class UserModel implements User {
 
   @Field(() => String, { nullable: false })
   image(): string {
-    return this.socials[0].accountProfileUrl;
+    return this.socials[0].accountImage;
   }
 }
 

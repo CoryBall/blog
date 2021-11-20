@@ -1,0 +1,17 @@
+query myPosts {
+  myPosts{
+    id
+    slug
+    title
+    views
+    likes
+    tags
+    author{
+      id
+      name
+      createdAt
+      image
+    }
+    publishedAt
+  }
+}

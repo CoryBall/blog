@@ -45,10 +45,15 @@ export type CreatePostInput = {
   body: Scalars['String'];
 };
 
+export type CreateTagInput = {
+  name: Scalars['String'];
+};
+
 
 export type EditPostInput = {
   title: Scalars['String'];
   body: Scalars['String'];
+  tagIds: Array<Scalars['String']>;
 };
 
 export type FileProgress = {
@@ -75,6 +80,7 @@ export type Mutation = {
   likePost: Scalars['Boolean'];
   unlikePost: Scalars['Boolean'];
   editPost: Post;
+  createTag: Tag;
   createComment: Comment;
   deleteComment: Scalars['Boolean'];
 };
@@ -116,6 +122,11 @@ export type MutationEditPostArgs = {
 };
 
 
+export type MutationCreateTagArgs = {
+  input: CreateTagInput;
+};
+
+
 export type MutationCreateCommentArgs = {
   input: CreateCommentInput;
   postId: Scalars['ID'];
@@ -136,10 +147,12 @@ export type Post = {
   title: Scalars['String'];
   body: Scalars['String'];
   published: Scalars['Boolean'];
+  publishedAt?: Maybe<Scalars['DateTime']>;
   views: Scalars['Float'];
   likes: Scalars['Float'];
   authorId: Scalars['String'];
   author: User;
+  tags: Array<Scalars['String']>;
 };
 
 export type PostLikes = {
@@ -159,7 +172,9 @@ export type Query = {
   me: User;
   allDrafts: Array<Post>;
   allPosts: Array<Post>;
+  myPosts: Array<Post>;
   getPost?: Maybe<Post>;
+  allTags: Array<Tag>;
   allComments: Array<Comment>;
 };
 
@@ -198,6 +213,13 @@ export type SubscriptionNewPostCommentsArgs = {
   postId: Scalars['String'];
 };
 
+export type Tag = {
+  __typename?: 'Tag';
+  id: Scalars['String'];
+  name: Scalars['String'];
+  posts: Array<Post>;
+};
+
 
 export type User = {
   __typename?: 'User';
@@ -234,6 +256,36 @@ export type MeQuery = (
     { __typename?: 'User' }
     & Pick<User, 'id' | 'createdAt' | 'name' | 'email' | 'image'>
   ) }
+);
+
+export type AllPostsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AllPostsQuery = (
+  { __typename?: 'Query' }
+  & { allPosts: Array<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'slug' | 'title' | 'views' | 'likes' | 'tags' | 'publishedAt'>
+    & { author: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'name' | 'createdAt' | 'image'>
+    ) }
+  )> }
+);
+
+export type MyPostsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type MyPostsQuery = (
+  { __typename?: 'Query' }
+  & { myPosts: Array<(
+    { __typename?: 'Post' }
+    & Pick<Post, 'id' | 'slug' | 'title' | 'views' | 'likes' | 'tags' | 'publishedAt'>
+    & { author: (
+      { __typename?: 'User' }
+      & Pick<User, 'id' | 'name' | 'createdAt' | 'image'>
+    ) }
+  )> }
 );
 
 
@@ -308,6 +360,98 @@ export function useMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MeQuery
 export type MeQueryHookResult = ReturnType<typeof useMeQuery>;
 export type MeLazyQueryHookResult = ReturnType<typeof useMeLazyQuery>;
 export type MeQueryResult = Apollo.QueryResult<MeQuery, MeQueryVariables>;
+export const AllPostsDocument = gql`
+    query allPosts {
+  allPosts {
+    id
+    slug
+    title
+    views
+    likes
+    tags
+    author {
+      id
+      name
+      createdAt
+      image
+    }
+    publishedAt
+  }
+}
+    `;
+
+/**
+ * __useAllPostsQuery__
+ *
+ * To run a query within a React component, call `useAllPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAllPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAllPostsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAllPostsQuery(baseOptions?: Apollo.QueryHookOptions<AllPostsQuery, AllPostsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<AllPostsQuery, AllPostsQueryVariables>(AllPostsDocument, options);
+      }
+export function useAllPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AllPostsQuery, AllPostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<AllPostsQuery, AllPostsQueryVariables>(AllPostsDocument, options);
+        }
+export type AllPostsQueryHookResult = ReturnType<typeof useAllPostsQuery>;
+export type AllPostsLazyQueryHookResult = ReturnType<typeof useAllPostsLazyQuery>;
+export type AllPostsQueryResult = Apollo.QueryResult<AllPostsQuery, AllPostsQueryVariables>;
+export const MyPostsDocument = gql`
+    query myPosts {
+  myPosts {
+    id
+    slug
+    title
+    views
+    likes
+    tags
+    author {
+      id
+      name
+      createdAt
+      image
+    }
+    publishedAt
+  }
+}
+    `;
+
+/**
+ * __useMyPostsQuery__
+ *
+ * To run a query within a React component, call `useMyPostsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useMyPostsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useMyPostsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useMyPostsQuery(baseOptions?: Apollo.QueryHookOptions<MyPostsQuery, MyPostsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<MyPostsQuery, MyPostsQueryVariables>(MyPostsDocument, options);
+      }
+export function useMyPostsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<MyPostsQuery, MyPostsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<MyPostsQuery, MyPostsQueryVariables>(MyPostsDocument, options);
+        }
+export type MyPostsQueryHookResult = ReturnType<typeof useMyPostsQuery>;
+export type MyPostsLazyQueryHookResult = ReturnType<typeof useMyPostsLazyQuery>;
+export type MyPostsQueryResult = Apollo.QueryResult<MyPostsQuery, MyPostsQueryVariables>;
 
       export interface PossibleTypesResultData {
         possibleTypes: {

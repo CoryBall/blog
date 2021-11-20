@@ -4,7 +4,7 @@ import { setUser } from '@blog/state/user';
 import { setApolloLink } from '@blog/state/app'
 import { User } from '@blog/types';
 import React from 'react';
-import { getTokensFromCookies } from '../context/helpers';
+import Cookies from 'js-cookie'
 
 type PageWrapperProps = {
     children: React.ReactNode
@@ -14,6 +14,12 @@ const PageWrapper: React.FC<PageWrapperProps> = (props: PageWrapperProps) => {
     const {children} = props;
     const [login, {data, error}] = useMeLazyQuery();
     const dispatch = useAppDispatch();
+
+
+    function getTokensFromCookies(): string | null {
+        const jsonToken = Cookies.get('userToken')
+        return jsonToken ? JSON.parse(jsonToken) as string : null;
+      }
 
     React.useEffect(() => {
         (async () => {

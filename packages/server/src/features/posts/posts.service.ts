@@ -1,4 +1,4 @@
-import { Post, PrismaClient } from '@blog/prisma';
+import { Post, PrismaClient, Tag } from '@blog/prisma';
 import { Service } from 'typedi';
 import {
   CreatePostInput,
@@ -12,6 +12,19 @@ import { ApolloError } from 'apollo-server-errors';
 @Service('PostService')
 class PostService {
   private readonly prisma = new PrismaClient();
+
+  private readonly postIncludes = {
+    author: {
+      include: {
+        socials: true,
+      },
+    },
+    tags: {
+      include: {
+        tag: true,
+      },
+    },
+  };
 
   async create(input: CreatePostInput, userId: string): Promise<Post> {
     const exists = await this.prisma.post.count({
@@ -34,13 +47,7 @@ class PostService {
         },
         published: false,
       },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
-        },
-      },
+      include: this.postIncludes,
     });
   }
 
@@ -51,13 +58,7 @@ class PostService {
         published: false,
         authorId: userId,
       },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
-        },
-      },
+      include: this.postIncludes,
     });
   }
 
@@ -66,70 +67,103 @@ class PostService {
       where: { id },
       data: {
         published: true,
+        publishedAt: new Date(),
       },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
-        },
-      },
+      include: this.postIncludes,
     });
   }
 
   async all(): Promise<Post[]> {
     return await this.prisma.post.findMany({
       where: { isDeleted: false, published: true },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
+      include: this.postIncludes,
+      orderBy: [
+        {
+          likes: 'desc',
         },
+        {
+          publishedAt: 'desc',
+        },
+      ],
+    });
+  }
+
+  async userPosts(userId: string): Promise<Post[]> {
+    return await this.prisma.post.findMany({
+      where: {
+        isDeleted: false,
+        authorId: userId,
       },
+      include: this.postIncludes,
+      orderBy: [
+        {
+          published: 'asc',
+        },
+        {
+          updatedAt: 'desc',
+        },
+      ],
+    });
+  }
+
+  async allByTag(tag: Tag): Promise<Post[]> {
+    const postIds = (
+      await this.prisma.postTags.findMany({
+        where: { tagId: tag.id },
+      })
+    ).map((x) => x.postId);
+
+    return await this.prisma.post.findMany({
+      where: {
+        id: { in: postIds },
+        isDeleted: false,
+        published: true,
+      },
+      include: this.postIncludes,
     });
   }
 
   async find(id: string): Promise<Post | null> {
     return await this.prisma.post.findUnique({
       where: { id },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
-        },
-      },
+      include: this.postIncludes,
     });
   }
 
   async findBySlug(slug: string): Promise<Post | null> {
     return await this.prisma.post.findUnique({
       where: { slug },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
-        },
-      },
+      include: this.postIncludes,
     });
   }
 
   async edit(id: string, input: EditPostInput): Promise<Post> {
+    if (input.tagIds.length !== 0) {
+      input.tagIds.forEach(async (tagId: string) => {
+        await this.prisma.postTags.create({
+          data: {
+            post: {
+              connect: {
+                id,
+              },
+            },
+            tag: {
+              connect: {
+                id: tagId,
+              },
+            },
+          },
+        });
+      });
+    }
+
     return await this.prisma.post.update({
       where: { id },
       data: {
         title: input.title,
         body: input.body,
       },
-      include: {
-        author: {
-          include: {
-            socials: true,
-          },
-        },
-      },
+      include: this.postIncludes,
     });
   }
 

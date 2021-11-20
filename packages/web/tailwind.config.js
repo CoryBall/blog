@@ -20,6 +20,19 @@ module.exports = {
         info: '#680801',
         light: '#D1D5DB',
         dark: '#0A0A0A'
+      },
+      boxShadow: {
+        'card': "-2px -2px 7px 0 rgba(39, 2, 6, 0.5), 2px 2px 12px 0 rgba(39, 2, 6, 0.5)"
+      },
+      margin: {
+        '18': '4.5rem'
+      },
+      fontSize: {
+        '2xs': '.5rem',
+        '3xs': '.25rem'
+      },
+      borderWidth: {
+        '1': '1px'
       }
     },
   },

@@ -14,6 +14,7 @@ import {
   PostResolver,
   CommentResolver,
   StorageResolver,
+  TagResolver,
 } from '@blog/server/features/resolvers';
 import { GraphqlAuthChecker } from '@blog/server/features/auth';
 import { ServerType } from '@blog/server/loaders/server.types';
@@ -38,6 +39,7 @@ export default async (app: Application): Promise<ServerType> => {
       PostResolver,
       CommentResolver,
       StorageResolver,
+      TagResolver,
     ],
     validate: true,
     authChecker: GraphqlAuthChecker,

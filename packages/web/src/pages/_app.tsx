@@ -29,7 +29,9 @@ const MyApp: NextPage<AppProps> = (props: AppProps) => {
           <PageWrapper>
             <AnimateSharedLayout>
               <Header />
-              <Component {...pageProps} />
+              <main className="mt-18 h-full">
+                <Component {...pageProps} />
+              </main>
             </AnimateSharedLayout>
           </PageWrapper>
         </ReduxProvider>

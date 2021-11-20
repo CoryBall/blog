@@ -44,6 +44,7 @@
     "@graphql-codegen/typescript-apollo-client-helpers": "^1.1.5",
     "@graphql-codegen/typescript-operations": "^1.17.16",
     "@graphql-codegen/typescript-react-apollo": "^2.2.4",
+    "@next/eslint-plugin-next": "^11.1.2",
     "@testing-library/react": "^11.2.5",
     "@types/jest": "^26.0.20",
     "@types/js-cookie": "^2.2.6",

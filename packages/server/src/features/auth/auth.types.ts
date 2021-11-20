@@ -13,7 +13,7 @@ class GithubAuthResult {
   token_type: string;
 }
 
-@ObjectType("Role")
+@ObjectType('Role')
 class RoleModel implements Role {
   @Field(() => ID, { nullable: false })
   id: string;
@@ -21,7 +21,7 @@ class RoleModel implements Role {
   name: string;
 }
 
-@ObjectType("Social")
+@ObjectType('Social')
 class SocialModel implements Social {
   @Field(() => ID, { nullable: false })
   id: string;
@@ -34,7 +34,7 @@ class SocialModel implements Social {
   @Field()
   accountUrl: string;
   @Field()
-  accountProfileUrl: string;
+  accountImage: string;
 }
 
 export { AuthPayload, GithubAuthResult, RoleModel, SocialModel };

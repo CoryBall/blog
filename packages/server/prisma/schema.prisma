@@ -53,7 +53,7 @@ model Social {
   type              String
   accountId         Int
   accountUrl        String
-  accountProfileUrl String
+  accountImage      String
 
   @@map("socials")
 }
@@ -70,6 +70,7 @@ model Post {
   title             String
   body              String
   published         Boolean   @default(false)
+  publishedAt       DateTime?
   views             Int
   viewsIps          String[]
   viewsUsers        PostsViewedByUsers[]
@@ -79,7 +80,24 @@ model Post {
   author            User      @relation(fields: [authorId], references: [id])
   authorId          String    @db.Uuid
   comments          Comment[]
+  tags              PostTags[]
   @@map("posts")
+}
+
+model Tag {
+  id                String    @id @db.Uuid @default(uuid())
+  name              String    @unique
+  posts             PostTags[]
+}
+
+model PostTags {
+  tagId             String    @db.Uuid
+  tag               Tag       @relation(fields: [tagId], references: [id])
+  postId            String    @db.Uuid
+  post              Post      @relation(fields: [postId], references: [id])
+
+  @@id([tagId, postId])
+  @@map("post_tags")
 }
 
 model Comment {

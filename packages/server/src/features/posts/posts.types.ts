@@ -1,6 +1,7 @@
-import { Post, User } from '@blog/prisma';
+import { Post, PostTags, Tag, User } from '@blog/prisma';
 import { Field, InputType, ObjectType } from 'type-graphql';
 import { UserModel } from '@blog/server/features/users';
+import { TagModel } from '../tags';
 
 @InputType()
 class CreatePostInput {
@@ -16,9 +17,11 @@ class EditPostInput {
   title: string;
   @Field()
   body: string;
+  @Field(() => [String])
+  tagIds: string[];
 }
 
-@ObjectType("Post")
+@ObjectType('Post')
 class PostModel implements Post {
   @Field()
   id: string;
@@ -36,6 +39,8 @@ class PostModel implements Post {
   body: string;
   @Field()
   published: boolean;
+  @Field(() => Date, { nullable: true })
+  publishedAt: Date | null;
   @Field()
   views: number;
   viewsIps: string[];
@@ -46,6 +51,19 @@ class PostModel implements Post {
   authorId: string;
   @Field(() => UserModel)
   author: User;
+  tags: PostTagsModel[];
+}
+
+@ObjectType()
+class PostTagsModel implements PostTags {
+  @Field()
+  tagId: string;
+  @Field(() => TagModel)
+  tag: Tag;
+  @Field()
+  postId: string;
+  @Field(() => PostModel)
+  post: Post;
 }
 
 @ObjectType()
@@ -64,4 +82,11 @@ class PostLikes {
   likes: number;
 }
 
-export { CreatePostInput, EditPostInput, PostModel, PostViews, PostLikes };
+export {
+  CreatePostInput,
+  EditPostInput,
+  PostModel,
+  PostViews,
+  PostLikes,
+  PostTagsModel,
+};

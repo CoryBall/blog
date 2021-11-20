@@ -91,7 +91,7 @@ exports.Prisma.SocialScalarFieldEnum = makeEnum({
   type: 'type',
   accountId: 'accountId',
   accountUrl: 'accountUrl',
-  accountProfileUrl: 'accountProfileUrl'
+  accountImage: 'accountImage'
 });
 
 exports.Prisma.PostScalarFieldEnum = makeEnum({
@@ -103,11 +103,22 @@ exports.Prisma.PostScalarFieldEnum = makeEnum({
   title: 'title',
   body: 'body',
   published: 'published',
+  publishedAt: 'publishedAt',
   views: 'views',
   viewsIps: 'viewsIps',
   likes: 'likes',
   likedIps: 'likedIps',
   authorId: 'authorId'
+});
+
+exports.Prisma.TagScalarFieldEnum = makeEnum({
+  id: 'id',
+  name: 'name'
+});
+
+exports.Prisma.PostTagsScalarFieldEnum = makeEnum({
+  tagId: 'tagId',
+  postId: 'postId'
 });
 
 exports.Prisma.CommentScalarFieldEnum = makeEnum({
@@ -148,6 +159,8 @@ exports.Prisma.ModelName = makeEnum({
   Role: 'Role',
   Social: 'Social',
   Post: 'Post',
+  Tag: 'Tag',
+  PostTags: 'PostTags',
   Comment: 'Comment',
   PostsLikedByUsers: 'PostsLikedByUsers',
   PostsViewedByUsers: 'PostsViewedByUsers'

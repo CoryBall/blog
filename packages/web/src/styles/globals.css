@@ -5,20 +5,20 @@
 @layer components {
 
     body {
-        @apply min-h-full min-w-full bg-primary
+        @apply bg-primary
     }
 
     .core {
-        @apply flex flex-col bg-primary
+        @apply w-screen h-screen flex flex-col bg-primary
     }
 
     /*#region Header*/
     .header {
-        @apply w-full my-14 bg-primary opacity-90 absolute top-0 z-50
+        @apply w-full bg-primary my-4 opacity-90 absolute top-0 z-50;
     }
 
     .header .container {
-        @apply max-w-7xl px-5 mx-auto relative flex items-center justify-around
+        @apply max-w-7xl px-5 my-auto mx-auto relative flex items-center justify-around
     }
 
     .header .icon-button {

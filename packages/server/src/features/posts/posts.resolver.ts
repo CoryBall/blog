@@ -11,6 +11,7 @@ import {
   Authorized,
   Ctx,
   UnauthorizedError,
+  FieldResolver,
 } from 'type-graphql';
 import { Inject, Service } from 'typedi';
 import { Post } from '@blog/prisma';
@@ -21,6 +22,7 @@ import {
   CreatePostInput,
   PostLikes,
   EditPostInput,
+  PostTagsModel,
 } from '@blog/server/features/posts';
 import { UserModel, UserService } from '@blog/server/features/users';
 import { ApolloError } from 'apollo-server-express';
@@ -29,12 +31,17 @@ const postViewTopic = 'POST_VIEW_UPDATE';
 const postLikeTopic = 'POST_LIKE_UPDATE';
 
 @Service()
-@Resolver()
+@Resolver(() => PostModel)
 class PostResolver {
   @Inject('PostService')
   private readonly postService: PostService;
   @Inject('UserService')
   private readonly userService: UserService;
+
+  @FieldResolver(() => [String])
+  tags(@Root() post: PostModel): string[] {
+    return post.tags.map((x: PostTagsModel) => x.tag.name);
+  }
 
   @Authorized()
   @Mutation(() => PostModel, { nullable: false })
@@ -69,6 +76,13 @@ class PostResolver {
   @Query(() => [PostModel], { nullable: false })
   async allPosts(): Promise<Post[]> {
     return (await this.postService.all()) as PostModel[];
+  }
+
+  @Authorized()
+  @Query(() => [PostModel], { nullable: false })
+  async myPosts(@Ctx() { req }: DataContext): Promise<Post[]> {
+    if (!req?.user?.id) throw new UnauthorizedError();
+    return (await this.postService.userPosts(req.user.id)) as PostModel[];
   }
 
   @Query(() => PostModel, { nullable: true })

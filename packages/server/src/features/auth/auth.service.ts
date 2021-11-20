@@ -1,6 +1,6 @@
 import { UserService } from '@blog/server/features/users';
 import { AuthPayload, GithubAuthResult } from '@blog/server/features/auth';
-import { sign, verify } from 'jsonwebtoken';
+import { sign, verify, SignOptions } from 'jsonwebtoken';
 import { Request } from 'express';
 import LoggerService from '@blog/server/features/logger';
 import { Inject, Service } from 'typedi';
@@ -93,19 +93,27 @@ class AuthService {
             },
           },
           accountId: userData.id,
-          accountProfileUrl: userData.avatar_url,
+          accountImage: userData.avatar_url,
           accountUrl: userData.html_url,
           type: SocialProviders.Github,
         },
       });
     } else {
-      const githubUser = await this.prisma.social
-        .findFirst({
-          where: { accountId: userData.id, type: SocialProviders.Github },
-        })
-        .user();
-      if (!githubUser) throw new ApolloError('Could not retrieve user');
-      user = githubUser;
+      const profile = await this.prisma.social.findFirst({
+        where: { accountId: userData.id, type: SocialProviders.Github },
+        include: { user: true },
+      });
+      if (!profile?.user) throw new ApolloError('Could not retrieve user');
+      if (profile.accountImage !== userData.avatar_url) {
+        await this.prisma.social.update({
+          where: { id: profile.id },
+          data: {
+            accountImage: userData.avatar_url,
+          },
+        });
+        profile.accountImage = userData.avatar_url;
+      }
+      user = profile.user;
       const userRole = await this.prisma.role.findUnique({
         where: { id: user.roleId },
       });
@@ -143,14 +151,20 @@ class AuthService {
     };
     const accessRole = {
       id: role.id,
+      name: role.name,
     };
 
     const accessToken: string = sign(
-      { user: accessUser, role: accessRole },
+      {
+        user: accessUser,
+        role: accessRole,
+      },
       this.authConfig.secretToken,
       {
         expiresIn: '1y',
-      }
+        issuer: this.authConfig.issuer,
+        audience: this.authConfig.audience,
+      } as SignOptions
     );
 
     return {

@@ -4,6 +4,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faBars, faTimes, faUserPlus } from '@fortawesome/free-solid-svg-icons';
 import { useAppSelector, useAppDispatch } from '@blog/state';
 import { logOutUser } from '@blog/state/user'
+import Image from 'next/image';
 
 const Header: React.FC = () => {
     const router = useRouter();
@@ -19,7 +20,7 @@ const Header: React.FC = () => {
 
     const links: {index: number, text: string, href: string}[] = [
         { index: 1, text: 'Home', href: '/'},
-        { index: 2, text: 'My Posts', href: '#'},
+        { index: 2, text: 'My Posts', href: '/posts'},
         { index: 3, text: 'Create', href: '#'}
     ]
 
@@ -40,8 +41,8 @@ const Header: React.FC = () => {
     // }
 
     return (
-        <nav className="header">
-            <div className="container">
+        <header className="header">
+            <nav className="container">
                 {/* Mobile menu button */}
                 <div className="sm:hidden" onClick={() => {setMenuExpanded(!menuExpanded)}}>
                     <button type="button" className="icon-button relative" id="mobile-menu-button" aria-expanded="false" aria-haspopup="true" aria-controls="mobile-menu">
@@ -77,7 +78,7 @@ const Header: React.FC = () => {
                     ))}
                 </div>
                 {/* Right Menu */}
-                <div className="flex items-center sm:static sm:inset-auto sm:ml-6 sm:pr-0">
+                <div className="flex items-center sm:relative sm:inset-auto sm:ml-6 sm:pr-0">
                     <button type="button" className="icon-button">
                         <span className="sr-only">View notifications</span>
                         <FontAwesomeIcon className="text-secondary" icon={faSearch} />
@@ -88,7 +89,7 @@ const Header: React.FC = () => {
                         <>
                             <button type="button" className="icon-button" id="user-menu-button" aria-expanded="false" aria-haspopup="true" onClick={() => {setUserMenuExpanded(!userMenuExpanded)}}>
                                 <span className="sr-only">Open user menu</span>
-                                <img className="h-8 w-8 rounded-full" src={user?.image} alt="Github Avatar" />
+                                <Image className="h-8 w-8 rounded-full" src={user?.image} alt="Github Avatar" height={32} width={32} />
                             </button>
                             {userMenuExpanded && (
                                 <div className="profile" role="menu" aria-orientation="vertical" aria-labelledby="user-menu-button" tabIndex={-1}>
@@ -109,8 +110,8 @@ const Header: React.FC = () => {
                         
                     </div>
                 </div>
-            </div>
-        </nav>
+            </nav>
+        </header>
     )
 }
 

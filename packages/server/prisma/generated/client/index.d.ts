@@ -45,7 +45,7 @@ export type Social = {
   type: string
   accountId: number
   accountUrl: string
-  accountProfileUrl: string
+  accountImage: string
 }
 
 /**
@@ -61,11 +61,30 @@ export type Post = {
   title: string
   body: string
   published: boolean
+  publishedAt: Date | null
   views: number
   viewsIps: string[]
   likes: number
   likedIps: string[]
   authorId: string
+}
+
+/**
+ * Model Tag
+ */
+
+export type Tag = {
+  id: string
+  name: string
+}
+
+/**
+ * Model PostTags
+ */
+
+export type PostTags = {
+  tagId: string
+  postId: string
 }
 
 /**
@@ -264,6 +283,26 @@ export class PrismaClient<
     * ```
     */
   get post(): Prisma.PostDelegate<GlobalReject>;
+
+  /**
+   * `prisma.tag`: Exposes CRUD operations for the **Tag** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more Tags
+    * const tags = await prisma.tag.findMany()
+    * ```
+    */
+  get tag(): Prisma.TagDelegate<GlobalReject>;
+
+  /**
+   * `prisma.postTags`: Exposes CRUD operations for the **PostTags** model.
+    * Example usage:
+    * ```ts
+    * // Fetch zero or more PostTags
+    * const postTags = await prisma.postTags.findMany()
+    * ```
+    */
+  get postTags(): Prisma.PostTagsDelegate<GlobalReject>;
 
   /**
    * `prisma.comment`: Exposes CRUD operations for the **Comment** model.
@@ -668,6 +707,8 @@ export namespace Prisma {
     Role: 'Role',
     Social: 'Social',
     Post: 'Post',
+    Tag: 'Tag',
+    PostTags: 'PostTags',
     Comment: 'Comment',
     PostsLikedByUsers: 'PostsLikedByUsers',
     PostsViewedByUsers: 'PostsViewedByUsers'
@@ -2626,7 +2667,7 @@ export namespace Prisma {
     type: string | null
     accountId: number | null
     accountUrl: string | null
-    accountProfileUrl: string | null
+    accountImage: string | null
   }
 
   export type SocialMaxAggregateOutputType = {
@@ -2635,7 +2676,7 @@ export namespace Prisma {
     type: string | null
     accountId: number | null
     accountUrl: string | null
-    accountProfileUrl: string | null
+    accountImage: string | null
   }
 
   export type SocialCountAggregateOutputType = {
@@ -2644,7 +2685,7 @@ export namespace Prisma {
     type: number
     accountId: number
     accountUrl: number
-    accountProfileUrl: number
+    accountImage: number
     _all: number
   }
 
@@ -2663,7 +2704,7 @@ export namespace Prisma {
     type?: true
     accountId?: true
     accountUrl?: true
-    accountProfileUrl?: true
+    accountImage?: true
   }
 
   export type SocialMaxAggregateInputType = {
@@ -2672,7 +2713,7 @@ export namespace Prisma {
     type?: true
     accountId?: true
     accountUrl?: true
-    accountProfileUrl?: true
+    accountImage?: true
   }
 
   export type SocialCountAggregateInputType = {
@@ -2681,7 +2722,7 @@ export namespace Prisma {
     type?: true
     accountId?: true
     accountUrl?: true
-    accountProfileUrl?: true
+    accountImage?: true
     _all?: true
   }
 
@@ -2803,7 +2844,7 @@ export namespace Prisma {
     type: string
     accountId: number
     accountUrl: string
-    accountProfileUrl: string
+    accountImage: string
     _count: SocialCountAggregateOutputType | null
     _avg: SocialAvgAggregateOutputType | null
     _sum: SocialSumAggregateOutputType | null
@@ -2832,7 +2873,7 @@ export namespace Prisma {
     type?: boolean
     accountId?: boolean
     accountUrl?: boolean
-    accountProfileUrl?: boolean
+    accountImage?: boolean
   }
 
   export type SocialInclude = {
@@ -3549,6 +3590,7 @@ export namespace Prisma {
     title: string | null
     body: string | null
     published: boolean | null
+    publishedAt: Date | null
     views: number | null
     likes: number | null
     authorId: string | null
@@ -3563,6 +3605,7 @@ export namespace Prisma {
     title: string | null
     body: string | null
     published: boolean | null
+    publishedAt: Date | null
     views: number | null
     likes: number | null
     authorId: string | null
@@ -3577,6 +3620,7 @@ export namespace Prisma {
     title: number
     body: number
     published: number
+    publishedAt: number
     views: number
     viewsIps: number
     likes: number
@@ -3605,6 +3649,7 @@ export namespace Prisma {
     title?: true
     body?: true
     published?: true
+    publishedAt?: true
     views?: true
     likes?: true
     authorId?: true
@@ -3619,6 +3664,7 @@ export namespace Prisma {
     title?: true
     body?: true
     published?: true
+    publishedAt?: true
     views?: true
     likes?: true
     authorId?: true
@@ -3633,6 +3679,7 @@ export namespace Prisma {
     title?: true
     body?: true
     published?: true
+    publishedAt?: true
     views?: true
     viewsIps?: true
     likes?: true
@@ -3762,6 +3809,7 @@ export namespace Prisma {
     title: string
     body: string
     published: boolean
+    publishedAt: Date | null
     views: number
     viewsIps: string[]
     likes: number
@@ -3797,6 +3845,7 @@ export namespace Prisma {
     title?: boolean
     body?: boolean
     published?: boolean
+    publishedAt?: boolean
     views?: boolean
     viewsIps?: boolean
     viewsUsers?: boolean | PostsViewedByUsersFindManyArgs
@@ -3806,6 +3855,7 @@ export namespace Prisma {
     author?: boolean | UserArgs
     authorId?: boolean
     comments?: boolean | CommentFindManyArgs
+    tags?: boolean | PostTagsFindManyArgs
   }
 
   export type PostInclude = {
@@ -3813,6 +3863,7 @@ export namespace Prisma {
     likedUsers?: boolean | PostsLikedByUsersFindManyArgs
     author?: boolean | UserArgs
     comments?: boolean | CommentFindManyArgs
+    tags?: boolean | PostTagsFindManyArgs
   }
 
   export type PostGetPayload<
@@ -3833,7 +3884,9 @@ export namespace Prisma {
         P extends 'author'
         ? UserGetPayload<S['include'][P]> :
         P extends 'comments'
-        ? Array < CommentGetPayload<S['include'][P]>>  : never
+        ? Array < CommentGetPayload<S['include'][P]>>  :
+        P extends 'tags'
+        ? Array < PostTagsGetPayload<S['include'][P]>>  : never
   } 
     : 'select' extends U
     ? {
@@ -3846,7 +3899,9 @@ export namespace Prisma {
         P extends 'author'
         ? UserGetPayload<S['select'][P]> :
         P extends 'comments'
-        ? Array < CommentGetPayload<S['select'][P]>>  : never
+        ? Array < CommentGetPayload<S['select'][P]>>  :
+        P extends 'tags'
+        ? Array < PostTagsGetPayload<S['select'][P]>>  : never
   } 
     : Post
   : Post
@@ -4194,6 +4249,8 @@ export namespace Prisma {
 
     comments<T extends CommentFindManyArgs = {}>(args?: Subset<T, CommentFindManyArgs>): CheckSelect<T, PrismaPromise<Array<Comment>>, PrismaPromise<Array<CommentGetPayload<T>>>>;
 
+    tags<T extends PostTagsFindManyArgs = {}>(args?: Subset<T, PostTagsFindManyArgs>): CheckSelect<T, PrismaPromise<Array<PostTags>>, PrismaPromise<Array<PostTagsGetPayload<T>>>>;
+
     private get _document();
     /**
      * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -4502,6 +4559,1698 @@ export namespace Prisma {
      * 
     **/
     include?: PostInclude | null
+  }
+
+
+
+  /**
+   * Model Tag
+   */
+
+
+  export type AggregateTag = {
+    _count: TagCountAggregateOutputType | null
+    count: TagCountAggregateOutputType | null
+    _min: TagMinAggregateOutputType | null
+    min: TagMinAggregateOutputType | null
+    _max: TagMaxAggregateOutputType | null
+    max: TagMaxAggregateOutputType | null
+  }
+
+  export type TagMinAggregateOutputType = {
+    id: string | null
+    name: string | null
+  }
+
+  export type TagMaxAggregateOutputType = {
+    id: string | null
+    name: string | null
+  }
+
+  export type TagCountAggregateOutputType = {
+    id: number
+    name: number
+    _all: number
+  }
+
+
+  export type TagMinAggregateInputType = {
+    id?: true
+    name?: true
+  }
+
+  export type TagMaxAggregateInputType = {
+    id?: true
+    name?: true
+  }
+
+  export type TagCountAggregateInputType = {
+    id?: true
+    name?: true
+    _all?: true
+  }
+
+  export type TagAggregateArgs = {
+    /**
+     * Filter which Tag to aggregate.
+     * 
+    **/
+    where?: TagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tags to fetch.
+     * 
+    **/
+    orderBy?: Enumerable<TagOrderByInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     * 
+    **/
+    cursor?: TagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tags from the position of the cursor.
+     * 
+    **/
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tags.
+     * 
+    **/
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned Tags
+    **/
+    _count?: true | TagCountAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_count`
+    **/
+    count?: true | TagCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: TagMinAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_min`
+    **/
+    min?: TagMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: TagMaxAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_max`
+    **/
+    max?: TagMaxAggregateInputType
+  }
+
+  export type GetTagAggregateType<T extends TagAggregateArgs> = {
+        [P in keyof T & keyof AggregateTag]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregateTag[P]>
+      : GetScalarType<T[P], AggregateTag[P]>
+  }
+
+
+    
+    
+  export type TagGroupByArgs = {
+    where?: TagWhereInput
+    orderBy?: Enumerable<TagOrderByInput>
+    by: Array<TagScalarFieldEnum>
+    having?: TagScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: TagCountAggregateInputType | true
+    _min?: TagMinAggregateInputType
+    _max?: TagMaxAggregateInputType
+  }
+
+
+  export type TagGroupByOutputType = {
+    id: string
+    name: string
+    _count: TagCountAggregateOutputType | null
+    _min: TagMinAggregateOutputType | null
+    _max: TagMaxAggregateOutputType | null
+  }
+
+  type GetTagGroupByPayload<T extends TagGroupByArgs> = Promise<
+    Array<
+      PickArray<TagGroupByOutputType, T['by']> & 
+        {
+          [P in ((keyof T) & (keyof TagGroupByOutputType))]: P extends '_count' 
+            ? T[P] extends boolean 
+              ? number 
+              : GetScalarType<T[P], TagGroupByOutputType[P]> 
+            : GetScalarType<T[P], TagGroupByOutputType[P]>
+        }
+      > 
+    >
+
+
+  export type TagSelect = {
+    id?: boolean
+    name?: boolean
+    posts?: boolean | PostTagsFindManyArgs
+  }
+
+  export type TagInclude = {
+    posts?: boolean | PostTagsFindManyArgs
+  }
+
+  export type TagGetPayload<
+    S extends boolean | null | undefined | TagArgs,
+    U = keyof S
+      > = S extends true
+        ? Tag
+    : S extends undefined
+    ? never
+    : S extends TagArgs | TagFindManyArgs
+    ?'include' extends U
+    ? Tag  & {
+    [P in TrueKeys<S['include']>]: 
+          P extends 'posts'
+        ? Array < PostTagsGetPayload<S['include'][P]>>  : never
+  } 
+    : 'select' extends U
+    ? {
+    [P in TrueKeys<S['select']>]: P extends keyof Tag ?Tag [P]
+  : 
+          P extends 'posts'
+        ? Array < PostTagsGetPayload<S['select'][P]>>  : never
+  } 
+    : Tag
+  : Tag
+
+
+  type TagCountArgs = Merge<
+    Omit<TagFindManyArgs, 'select' | 'include'> & {
+      select?: TagCountAggregateInputType | true
+    }
+  >
+
+  export interface TagDelegate<GlobalRejectSettings> {
+    /**
+     * Find zero or one Tag that matches the filter.
+     * @param {TagFindUniqueArgs} args - Arguments to find a Tag
+     * @example
+     * // Get one Tag
+     * const tag = await prisma.tag.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends TagFindUniqueArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, TagFindUniqueArgs>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'Tag'> extends True ? CheckSelect<T, Prisma__TagClient<Tag>, Prisma__TagClient<TagGetPayload<T>>> : CheckSelect<T, Prisma__TagClient<Tag | null >, Prisma__TagClient<TagGetPayload<T> | null >>
+
+    /**
+     * Find the first Tag that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagFindFirstArgs} args - Arguments to find a Tag
+     * @example
+     * // Get one Tag
+     * const tag = await prisma.tag.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends TagFindFirstArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, TagFindFirstArgs>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'Tag'> extends True ? CheckSelect<T, Prisma__TagClient<Tag>, Prisma__TagClient<TagGetPayload<T>>> : CheckSelect<T, Prisma__TagClient<Tag | null >, Prisma__TagClient<TagGetPayload<T> | null >>
+
+    /**
+     * Find zero or more Tags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all Tags
+     * const tags = await prisma.tag.findMany()
+     * 
+     * // Get first 10 Tags
+     * const tags = await prisma.tag.findMany({ take: 10 })
+     * 
+     * // Only select the `id`
+     * const tagWithIdOnly = await prisma.tag.findMany({ select: { id: true } })
+     * 
+    **/
+    findMany<T extends TagFindManyArgs>(
+      args?: SelectSubset<T, TagFindManyArgs>
+    ): CheckSelect<T, PrismaPromise<Array<Tag>>, PrismaPromise<Array<TagGetPayload<T>>>>
+
+    /**
+     * Create a Tag.
+     * @param {TagCreateArgs} args - Arguments to create a Tag.
+     * @example
+     * // Create one Tag
+     * const Tag = await prisma.tag.create({
+     *   data: {
+     *     // ... data to create a Tag
+     *   }
+     * })
+     * 
+    **/
+    create<T extends TagCreateArgs>(
+      args: SelectSubset<T, TagCreateArgs>
+    ): CheckSelect<T, Prisma__TagClient<Tag>, Prisma__TagClient<TagGetPayload<T>>>
+
+    /**
+     * Create many Tags.
+     *     @param {TagCreateManyArgs} args - Arguments to create many Tags.
+     *     @example
+     *     // Create many Tags
+     *     const tag = await prisma.tag.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends TagCreateManyArgs>(
+      args?: SelectSubset<T, TagCreateManyArgs>
+    ): PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a Tag.
+     * @param {TagDeleteArgs} args - Arguments to delete one Tag.
+     * @example
+     * // Delete one Tag
+     * const Tag = await prisma.tag.delete({
+     *   where: {
+     *     // ... filter to delete one Tag
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends TagDeleteArgs>(
+      args: SelectSubset<T, TagDeleteArgs>
+    ): CheckSelect<T, Prisma__TagClient<Tag>, Prisma__TagClient<TagGetPayload<T>>>
+
+    /**
+     * Update one Tag.
+     * @param {TagUpdateArgs} args - Arguments to update one Tag.
+     * @example
+     * // Update one Tag
+     * const tag = await prisma.tag.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends TagUpdateArgs>(
+      args: SelectSubset<T, TagUpdateArgs>
+    ): CheckSelect<T, Prisma__TagClient<Tag>, Prisma__TagClient<TagGetPayload<T>>>
+
+    /**
+     * Delete zero or more Tags.
+     * @param {TagDeleteManyArgs} args - Arguments to filter Tags to delete.
+     * @example
+     * // Delete a few Tags
+     * const { count } = await prisma.tag.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends TagDeleteManyArgs>(
+      args?: SelectSubset<T, TagDeleteManyArgs>
+    ): PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many Tags
+     * const tag = await prisma.tag.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends TagUpdateManyArgs>(
+      args: SelectSubset<T, TagUpdateManyArgs>
+    ): PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one Tag.
+     * @param {TagUpsertArgs} args - Arguments to update or create a Tag.
+     * @example
+     * // Update or create a Tag
+     * const tag = await prisma.tag.upsert({
+     *   create: {
+     *     // ... data to create a Tag
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the Tag we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends TagUpsertArgs>(
+      args: SelectSubset<T, TagUpsertArgs>
+    ): CheckSelect<T, Prisma__TagClient<Tag>, Prisma__TagClient<TagGetPayload<T>>>
+
+    /**
+     * Count the number of Tags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagCountArgs} args - Arguments to filter Tags to count.
+     * @example
+     * // Count the number of Tags
+     * const count = await prisma.tag.count({
+     *   where: {
+     *     // ... the filter for the Tags we want to count
+     *   }
+     * })
+    **/
+    count<T extends TagCountArgs>(
+      args?: Subset<T, TagCountArgs>,
+    ): PrismaPromise<
+      T extends _Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], TagCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a Tag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends TagAggregateArgs>(args: Subset<T, TagAggregateArgs>): PrismaPromise<GetTagAggregateType<T>>
+
+    /**
+     * Group by Tag.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {TagGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends TagGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: TagGroupByArgs['orderBy'] }
+        : { orderBy?: TagGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, TagGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetTagGroupByPayload<T> : Promise<InputErrors>
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for Tag.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in 
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__TagClient<T> implements PrismaPromise<T> {
+    [prisma]: true;
+    private readonly _dmmf;
+    private readonly _fetcher;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    constructor(_dmmf: runtime.DMMFClass, _fetcher: PrismaClientFetcher, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+    readonly [Symbol.toStringTag]: 'PrismaClientPromise';
+
+    posts<T extends PostTagsFindManyArgs = {}>(args?: Subset<T, PostTagsFindManyArgs>): CheckSelect<T, PrismaPromise<Array<PostTags>>, PrismaPromise<Array<PostTagsGetPayload<T>>>>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+  // Custom InputTypes
+
+  /**
+   * Tag findUnique
+   */
+  export type TagFindUniqueArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+    /**
+     * Throw an Error if a Tag can't be found
+     * 
+    **/
+    rejectOnNotFound?: RejectOnNotFound
+    /**
+     * Filter, which Tag to fetch.
+     * 
+    **/
+    where: TagWhereUniqueInput
+  }
+
+
+  /**
+   * Tag findFirst
+   */
+  export type TagFindFirstArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+    /**
+     * Throw an Error if a Tag can't be found
+     * 
+    **/
+    rejectOnNotFound?: RejectOnNotFound
+    /**
+     * Filter, which Tag to fetch.
+     * 
+    **/
+    where?: TagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tags to fetch.
+     * 
+    **/
+    orderBy?: Enumerable<TagOrderByInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for Tags.
+     * 
+    **/
+    cursor?: TagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tags from the position of the cursor.
+     * 
+    **/
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tags.
+     * 
+    **/
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of Tags.
+     * 
+    **/
+    distinct?: Enumerable<TagScalarFieldEnum>
+  }
+
+
+  /**
+   * Tag findMany
+   */
+  export type TagFindManyArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+    /**
+     * Filter, which Tags to fetch.
+     * 
+    **/
+    where?: TagWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of Tags to fetch.
+     * 
+    **/
+    orderBy?: Enumerable<TagOrderByInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing Tags.
+     * 
+    **/
+    cursor?: TagWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` Tags from the position of the cursor.
+     * 
+    **/
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` Tags.
+     * 
+    **/
+    skip?: number
+    distinct?: Enumerable<TagScalarFieldEnum>
+  }
+
+
+  /**
+   * Tag create
+   */
+  export type TagCreateArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+    /**
+     * The data needed to create a Tag.
+     * 
+    **/
+    data: XOR<TagCreateInput, TagUncheckedCreateInput>
+  }
+
+
+  /**
+   * Tag createMany
+   */
+  export type TagCreateManyArgs = {
+    data: Enumerable<TagCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * Tag update
+   */
+  export type TagUpdateArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+    /**
+     * The data needed to update a Tag.
+     * 
+    **/
+    data: XOR<TagUpdateInput, TagUncheckedUpdateInput>
+    /**
+     * Choose, which Tag to update.
+     * 
+    **/
+    where: TagWhereUniqueInput
+  }
+
+
+  /**
+   * Tag updateMany
+   */
+  export type TagUpdateManyArgs = {
+    data: XOR<TagUpdateManyMutationInput, TagUncheckedUpdateManyInput>
+    where?: TagWhereInput
+  }
+
+
+  /**
+   * Tag upsert
+   */
+  export type TagUpsertArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+    /**
+     * The filter to search for the Tag to update in case it exists.
+     * 
+    **/
+    where: TagWhereUniqueInput
+    /**
+     * In case the Tag found by the `where` argument doesn't exist, create a new Tag with this data.
+     * 
+    **/
+    create: XOR<TagCreateInput, TagUncheckedCreateInput>
+    /**
+     * In case the Tag was found with the provided `where` argument, update it with this data.
+     * 
+    **/
+    update: XOR<TagUpdateInput, TagUncheckedUpdateInput>
+  }
+
+
+  /**
+   * Tag delete
+   */
+  export type TagDeleteArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+    /**
+     * Filter which Tag to delete.
+     * 
+    **/
+    where: TagWhereUniqueInput
+  }
+
+
+  /**
+   * Tag deleteMany
+   */
+  export type TagDeleteManyArgs = {
+    where?: TagWhereInput
+  }
+
+
+  /**
+   * Tag without action
+   */
+  export type TagArgs = {
+    /**
+     * Select specific fields to fetch from the Tag
+     * 
+    **/
+    select?: TagSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: TagInclude | null
+  }
+
+
+
+  /**
+   * Model PostTags
+   */
+
+
+  export type AggregatePostTags = {
+    _count: PostTagsCountAggregateOutputType | null
+    count: PostTagsCountAggregateOutputType | null
+    _min: PostTagsMinAggregateOutputType | null
+    min: PostTagsMinAggregateOutputType | null
+    _max: PostTagsMaxAggregateOutputType | null
+    max: PostTagsMaxAggregateOutputType | null
+  }
+
+  export type PostTagsMinAggregateOutputType = {
+    tagId: string | null
+    postId: string | null
+  }
+
+  export type PostTagsMaxAggregateOutputType = {
+    tagId: string | null
+    postId: string | null
+  }
+
+  export type PostTagsCountAggregateOutputType = {
+    tagId: number
+    postId: number
+    _all: number
+  }
+
+
+  export type PostTagsMinAggregateInputType = {
+    tagId?: true
+    postId?: true
+  }
+
+  export type PostTagsMaxAggregateInputType = {
+    tagId?: true
+    postId?: true
+  }
+
+  export type PostTagsCountAggregateInputType = {
+    tagId?: true
+    postId?: true
+    _all?: true
+  }
+
+  export type PostTagsAggregateArgs = {
+    /**
+     * Filter which PostTags to aggregate.
+     * 
+    **/
+    where?: PostTagsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PostTags to fetch.
+     * 
+    **/
+    orderBy?: Enumerable<PostTagsOrderByInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the start position
+     * 
+    **/
+    cursor?: PostTagsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PostTags from the position of the cursor.
+     * 
+    **/
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PostTags.
+     * 
+    **/
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Count returned PostTags
+    **/
+    _count?: true | PostTagsCountAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_count`
+    **/
+    count?: true | PostTagsCountAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the minimum value
+    **/
+    _min?: PostTagsMinAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_min`
+    **/
+    min?: PostTagsMinAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to find the maximum value
+    **/
+    _max?: PostTagsMaxAggregateInputType
+    /**
+     * @deprecated since 2.23.0 please use `_max`
+    **/
+    max?: PostTagsMaxAggregateInputType
+  }
+
+  export type GetPostTagsAggregateType<T extends PostTagsAggregateArgs> = {
+        [P in keyof T & keyof AggregatePostTags]: P extends '_count' | 'count'
+      ? T[P] extends true
+        ? number
+        : GetScalarType<T[P], AggregatePostTags[P]>
+      : GetScalarType<T[P], AggregatePostTags[P]>
+  }
+
+
+    
+    
+  export type PostTagsGroupByArgs = {
+    where?: PostTagsWhereInput
+    orderBy?: Enumerable<PostTagsOrderByInput>
+    by: Array<PostTagsScalarFieldEnum>
+    having?: PostTagsScalarWhereWithAggregatesInput
+    take?: number
+    skip?: number
+    _count?: PostTagsCountAggregateInputType | true
+    _min?: PostTagsMinAggregateInputType
+    _max?: PostTagsMaxAggregateInputType
+  }
+
+
+  export type PostTagsGroupByOutputType = {
+    tagId: string
+    postId: string
+    _count: PostTagsCountAggregateOutputType | null
+    _min: PostTagsMinAggregateOutputType | null
+    _max: PostTagsMaxAggregateOutputType | null
+  }
+
+  type GetPostTagsGroupByPayload<T extends PostTagsGroupByArgs> = Promise<
+    Array<
+      PickArray<PostTagsGroupByOutputType, T['by']> & 
+        {
+          [P in ((keyof T) & (keyof PostTagsGroupByOutputType))]: P extends '_count' 
+            ? T[P] extends boolean 
+              ? number 
+              : GetScalarType<T[P], PostTagsGroupByOutputType[P]> 
+            : GetScalarType<T[P], PostTagsGroupByOutputType[P]>
+        }
+      > 
+    >
+
+
+  export type PostTagsSelect = {
+    tagId?: boolean
+    tag?: boolean | TagArgs
+    postId?: boolean
+    post?: boolean | PostArgs
+  }
+
+  export type PostTagsInclude = {
+    tag?: boolean | TagArgs
+    post?: boolean | PostArgs
+  }
+
+  export type PostTagsGetPayload<
+    S extends boolean | null | undefined | PostTagsArgs,
+    U = keyof S
+      > = S extends true
+        ? PostTags
+    : S extends undefined
+    ? never
+    : S extends PostTagsArgs | PostTagsFindManyArgs
+    ?'include' extends U
+    ? PostTags  & {
+    [P in TrueKeys<S['include']>]: 
+          P extends 'tag'
+        ? TagGetPayload<S['include'][P]> :
+        P extends 'post'
+        ? PostGetPayload<S['include'][P]> : never
+  } 
+    : 'select' extends U
+    ? {
+    [P in TrueKeys<S['select']>]: P extends keyof PostTags ?PostTags [P]
+  : 
+          P extends 'tag'
+        ? TagGetPayload<S['select'][P]> :
+        P extends 'post'
+        ? PostGetPayload<S['select'][P]> : never
+  } 
+    : PostTags
+  : PostTags
+
+
+  type PostTagsCountArgs = Merge<
+    Omit<PostTagsFindManyArgs, 'select' | 'include'> & {
+      select?: PostTagsCountAggregateInputType | true
+    }
+  >
+
+  export interface PostTagsDelegate<GlobalRejectSettings> {
+    /**
+     * Find zero or one PostTags that matches the filter.
+     * @param {PostTagsFindUniqueArgs} args - Arguments to find a PostTags
+     * @example
+     * // Get one PostTags
+     * const postTags = await prisma.postTags.findUnique({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findUnique<T extends PostTagsFindUniqueArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args: SelectSubset<T, PostTagsFindUniqueArgs>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findUnique', 'PostTags'> extends True ? CheckSelect<T, Prisma__PostTagsClient<PostTags>, Prisma__PostTagsClient<PostTagsGetPayload<T>>> : CheckSelect<T, Prisma__PostTagsClient<PostTags | null >, Prisma__PostTagsClient<PostTagsGetPayload<T> | null >>
+
+    /**
+     * Find the first PostTags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostTagsFindFirstArgs} args - Arguments to find a PostTags
+     * @example
+     * // Get one PostTags
+     * const postTags = await prisma.postTags.findFirst({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+    **/
+    findFirst<T extends PostTagsFindFirstArgs,  LocalRejectSettings = T["rejectOnNotFound"] extends RejectOnNotFound ? T['rejectOnNotFound'] : undefined>(
+      args?: SelectSubset<T, PostTagsFindFirstArgs>
+    ): HasReject<GlobalRejectSettings, LocalRejectSettings, 'findFirst', 'PostTags'> extends True ? CheckSelect<T, Prisma__PostTagsClient<PostTags>, Prisma__PostTagsClient<PostTagsGetPayload<T>>> : CheckSelect<T, Prisma__PostTagsClient<PostTags | null >, Prisma__PostTagsClient<PostTagsGetPayload<T> | null >>
+
+    /**
+     * Find zero or more PostTags that matches the filter.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostTagsFindManyArgs=} args - Arguments to filter and select certain fields only.
+     * @example
+     * // Get all PostTags
+     * const postTags = await prisma.postTags.findMany()
+     * 
+     * // Get first 10 PostTags
+     * const postTags = await prisma.postTags.findMany({ take: 10 })
+     * 
+     * // Only select the `tagId`
+     * const postTagsWithTagIdOnly = await prisma.postTags.findMany({ select: { tagId: true } })
+     * 
+    **/
+    findMany<T extends PostTagsFindManyArgs>(
+      args?: SelectSubset<T, PostTagsFindManyArgs>
+    ): CheckSelect<T, PrismaPromise<Array<PostTags>>, PrismaPromise<Array<PostTagsGetPayload<T>>>>
+
+    /**
+     * Create a PostTags.
+     * @param {PostTagsCreateArgs} args - Arguments to create a PostTags.
+     * @example
+     * // Create one PostTags
+     * const PostTags = await prisma.postTags.create({
+     *   data: {
+     *     // ... data to create a PostTags
+     *   }
+     * })
+     * 
+    **/
+    create<T extends PostTagsCreateArgs>(
+      args: SelectSubset<T, PostTagsCreateArgs>
+    ): CheckSelect<T, Prisma__PostTagsClient<PostTags>, Prisma__PostTagsClient<PostTagsGetPayload<T>>>
+
+    /**
+     * Create many PostTags.
+     *     @param {PostTagsCreateManyArgs} args - Arguments to create many PostTags.
+     *     @example
+     *     // Create many PostTags
+     *     const postTags = await prisma.postTags.createMany({
+     *       data: {
+     *         // ... provide data here
+     *       }
+     *     })
+     *     
+    **/
+    createMany<T extends PostTagsCreateManyArgs>(
+      args?: SelectSubset<T, PostTagsCreateManyArgs>
+    ): PrismaPromise<BatchPayload>
+
+    /**
+     * Delete a PostTags.
+     * @param {PostTagsDeleteArgs} args - Arguments to delete one PostTags.
+     * @example
+     * // Delete one PostTags
+     * const PostTags = await prisma.postTags.delete({
+     *   where: {
+     *     // ... filter to delete one PostTags
+     *   }
+     * })
+     * 
+    **/
+    delete<T extends PostTagsDeleteArgs>(
+      args: SelectSubset<T, PostTagsDeleteArgs>
+    ): CheckSelect<T, Prisma__PostTagsClient<PostTags>, Prisma__PostTagsClient<PostTagsGetPayload<T>>>
+
+    /**
+     * Update one PostTags.
+     * @param {PostTagsUpdateArgs} args - Arguments to update one PostTags.
+     * @example
+     * // Update one PostTags
+     * const postTags = await prisma.postTags.update({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    update<T extends PostTagsUpdateArgs>(
+      args: SelectSubset<T, PostTagsUpdateArgs>
+    ): CheckSelect<T, Prisma__PostTagsClient<PostTags>, Prisma__PostTagsClient<PostTagsGetPayload<T>>>
+
+    /**
+     * Delete zero or more PostTags.
+     * @param {PostTagsDeleteManyArgs} args - Arguments to filter PostTags to delete.
+     * @example
+     * // Delete a few PostTags
+     * const { count } = await prisma.postTags.deleteMany({
+     *   where: {
+     *     // ... provide filter here
+     *   }
+     * })
+     * 
+    **/
+    deleteMany<T extends PostTagsDeleteManyArgs>(
+      args?: SelectSubset<T, PostTagsDeleteManyArgs>
+    ): PrismaPromise<BatchPayload>
+
+    /**
+     * Update zero or more PostTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostTagsUpdateManyArgs} args - Arguments to update one or more rows.
+     * @example
+     * // Update many PostTags
+     * const postTags = await prisma.postTags.updateMany({
+     *   where: {
+     *     // ... provide filter here
+     *   },
+     *   data: {
+     *     // ... provide data here
+     *   }
+     * })
+     * 
+    **/
+    updateMany<T extends PostTagsUpdateManyArgs>(
+      args: SelectSubset<T, PostTagsUpdateManyArgs>
+    ): PrismaPromise<BatchPayload>
+
+    /**
+     * Create or update one PostTags.
+     * @param {PostTagsUpsertArgs} args - Arguments to update or create a PostTags.
+     * @example
+     * // Update or create a PostTags
+     * const postTags = await prisma.postTags.upsert({
+     *   create: {
+     *     // ... data to create a PostTags
+     *   },
+     *   update: {
+     *     // ... in case it already exists, update
+     *   },
+     *   where: {
+     *     // ... the filter for the PostTags we want to update
+     *   }
+     * })
+    **/
+    upsert<T extends PostTagsUpsertArgs>(
+      args: SelectSubset<T, PostTagsUpsertArgs>
+    ): CheckSelect<T, Prisma__PostTagsClient<PostTags>, Prisma__PostTagsClient<PostTagsGetPayload<T>>>
+
+    /**
+     * Count the number of PostTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostTagsCountArgs} args - Arguments to filter PostTags to count.
+     * @example
+     * // Count the number of PostTags
+     * const count = await prisma.postTags.count({
+     *   where: {
+     *     // ... the filter for the PostTags we want to count
+     *   }
+     * })
+    **/
+    count<T extends PostTagsCountArgs>(
+      args?: Subset<T, PostTagsCountArgs>,
+    ): PrismaPromise<
+      T extends _Record<'select', any>
+        ? T['select'] extends true
+          ? number
+          : GetScalarType<T['select'], PostTagsCountAggregateOutputType>
+        : number
+    >
+
+    /**
+     * Allows you to perform aggregations operations on a PostTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostTagsAggregateArgs} args - Select which aggregations you would like to apply and on what fields.
+     * @example
+     * // Ordered by age ascending
+     * // Where email contains prisma.io
+     * // Limited to the 10 users
+     * const aggregations = await prisma.user.aggregate({
+     *   _avg: {
+     *     age: true,
+     *   },
+     *   where: {
+     *     email: {
+     *       contains: "prisma.io",
+     *     },
+     *   },
+     *   orderBy: {
+     *     age: "asc",
+     *   },
+     *   take: 10,
+     * })
+    **/
+    aggregate<T extends PostTagsAggregateArgs>(args: Subset<T, PostTagsAggregateArgs>): PrismaPromise<GetPostTagsAggregateType<T>>
+
+    /**
+     * Group by PostTags.
+     * Note, that providing `undefined` is treated as the value not being there.
+     * Read more here: https://pris.ly/d/null-undefined
+     * @param {PostTagsGroupByArgs} args - Group by arguments.
+     * @example
+     * // Group by city, order by createdAt, get count
+     * const result = await prisma.user.groupBy({
+     *   by: ['city', 'createdAt'],
+     *   orderBy: {
+     *     createdAt: true
+     *   },
+     *   _count: {
+     *     _all: true
+     *   },
+     * })
+     * 
+    **/
+    groupBy<
+      T extends PostTagsGroupByArgs,
+      HasSelectOrTake extends Or<
+        Extends<'skip', Keys<T>>,
+        Extends<'take', Keys<T>>
+      >,
+      OrderByArg extends True extends HasSelectOrTake
+        ? { orderBy: PostTagsGroupByArgs['orderBy'] }
+        : { orderBy?: PostTagsGroupByArgs['orderBy'] },
+      OrderFields extends ExcludeUnderscoreKeys<Keys<MaybeTupleToUnion<T['orderBy']>>>,
+      ByFields extends TupleToUnion<T['by']>,
+      ByValid extends Has<ByFields, OrderFields>,
+      HavingFields extends GetHavingFields<T['having']>,
+      HavingValid extends Has<ByFields, HavingFields>,
+      ByEmpty extends T['by'] extends never[] ? True : False,
+      InputErrors extends ByEmpty extends True
+      ? `Error: "by" must not be empty.`
+      : HavingValid extends False
+      ? {
+          [P in HavingFields]: P extends ByFields
+            ? never
+            : P extends string
+            ? `Error: Field "${P}" used in "having" needs to be provided in "by".`
+            : [
+                Error,
+                'Field ',
+                P,
+                ` in "having" needs to be provided in "by"`,
+              ]
+        }[HavingFields]
+      : 'take' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "take", you also need to provide "orderBy"'
+      : 'skip' extends Keys<T>
+      ? 'orderBy' extends Keys<T>
+        ? ByValid extends True
+          ? {}
+          : {
+              [P in OrderFields]: P extends ByFields
+                ? never
+                : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+            }[OrderFields]
+        : 'Error: If you provide "skip", you also need to provide "orderBy"'
+      : ByValid extends True
+      ? {}
+      : {
+          [P in OrderFields]: P extends ByFields
+            ? never
+            : `Error: Field "${P}" in "orderBy" needs to be provided in "by"`
+        }[OrderFields]
+    >(args: SubsetIntersection<T, PostTagsGroupByArgs, OrderByArg> & InputErrors): {} extends InputErrors ? GetPostTagsGroupByPayload<T> : Promise<InputErrors>
+  }
+
+  /**
+   * The delegate class that acts as a "Promise-like" for PostTags.
+   * Why is this prefixed with `Prisma__`?
+   * Because we want to prevent naming conflicts as mentioned in 
+   * https://github.com/prisma/prisma-client-js/issues/707
+   */
+  export class Prisma__PostTagsClient<T> implements PrismaPromise<T> {
+    [prisma]: true;
+    private readonly _dmmf;
+    private readonly _fetcher;
+    private readonly _queryType;
+    private readonly _rootField;
+    private readonly _clientMethod;
+    private readonly _args;
+    private readonly _dataPath;
+    private readonly _errorFormat;
+    private readonly _measurePerformance?;
+    private _isList;
+    private _callsite;
+    private _requestPromise?;
+    constructor(_dmmf: runtime.DMMFClass, _fetcher: PrismaClientFetcher, _queryType: 'query' | 'mutation', _rootField: string, _clientMethod: string, _args: any, _dataPath: string[], _errorFormat: ErrorFormat, _measurePerformance?: boolean | undefined, _isList?: boolean);
+    readonly [Symbol.toStringTag]: 'PrismaClientPromise';
+
+    tag<T extends TagArgs = {}>(args?: Subset<T, TagArgs>): CheckSelect<T, Prisma__TagClient<Tag | null >, Prisma__TagClient<TagGetPayload<T> | null >>;
+
+    post<T extends PostArgs = {}>(args?: Subset<T, PostArgs>): CheckSelect<T, Prisma__PostClient<Post | null >, Prisma__PostClient<PostGetPayload<T> | null >>;
+
+    private get _document();
+    /**
+     * Attaches callbacks for the resolution and/or rejection of the Promise.
+     * @param onfulfilled The callback to execute when the Promise is resolved.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of which ever callback is executed.
+     */
+    then<TResult1 = T, TResult2 = never>(onfulfilled?: ((value: T) => TResult1 | PromiseLike<TResult1>) | undefined | null, onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null): Promise<TResult1 | TResult2>;
+    /**
+     * Attaches a callback for only the rejection of the Promise.
+     * @param onrejected The callback to execute when the Promise is rejected.
+     * @returns A Promise for the completion of the callback.
+     */
+    catch<TResult = never>(onrejected?: ((reason: any) => TResult | PromiseLike<TResult>) | undefined | null): Promise<T | TResult>;
+    /**
+     * Attaches a callback that is invoked when the Promise is settled (fulfilled or rejected). The
+     * resolved value cannot be modified from the callback.
+     * @param onfinally The callback to execute when the Promise is settled (fulfilled or rejected).
+     * @returns A Promise for the completion of the callback.
+     */
+    finally(onfinally?: (() => void) | undefined | null): Promise<T>;
+  }
+
+  // Custom InputTypes
+
+  /**
+   * PostTags findUnique
+   */
+  export type PostTagsFindUniqueArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
+    /**
+     * Throw an Error if a PostTags can't be found
+     * 
+    **/
+    rejectOnNotFound?: RejectOnNotFound
+    /**
+     * Filter, which PostTags to fetch.
+     * 
+    **/
+    where: PostTagsWhereUniqueInput
+  }
+
+
+  /**
+   * PostTags findFirst
+   */
+  export type PostTagsFindFirstArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
+    /**
+     * Throw an Error if a PostTags can't be found
+     * 
+    **/
+    rejectOnNotFound?: RejectOnNotFound
+    /**
+     * Filter, which PostTags to fetch.
+     * 
+    **/
+    where?: PostTagsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PostTags to fetch.
+     * 
+    **/
+    orderBy?: Enumerable<PostTagsOrderByInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for searching for PostTags.
+     * 
+    **/
+    cursor?: PostTagsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PostTags from the position of the cursor.
+     * 
+    **/
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PostTags.
+     * 
+    **/
+    skip?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/distinct Distinct Docs}
+     * 
+     * Filter by unique combinations of PostTags.
+     * 
+    **/
+    distinct?: Enumerable<PostTagsScalarFieldEnum>
+  }
+
+
+  /**
+   * PostTags findMany
+   */
+  export type PostTagsFindManyArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
+    /**
+     * Filter, which PostTags to fetch.
+     * 
+    **/
+    where?: PostTagsWhereInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/sorting Sorting Docs}
+     * 
+     * Determine the order of PostTags to fetch.
+     * 
+    **/
+    orderBy?: Enumerable<PostTagsOrderByInput>
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination#cursor-based-pagination Cursor Docs}
+     * 
+     * Sets the position for listing PostTags.
+     * 
+    **/
+    cursor?: PostTagsWhereUniqueInput
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Take `±n` PostTags from the position of the cursor.
+     * 
+    **/
+    take?: number
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/pagination Pagination Docs}
+     * 
+     * Skip the first `n` PostTags.
+     * 
+    **/
+    skip?: number
+    distinct?: Enumerable<PostTagsScalarFieldEnum>
+  }
+
+
+  /**
+   * PostTags create
+   */
+  export type PostTagsCreateArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
+    /**
+     * The data needed to create a PostTags.
+     * 
+    **/
+    data: XOR<PostTagsCreateInput, PostTagsUncheckedCreateInput>
+  }
+
+
+  /**
+   * PostTags createMany
+   */
+  export type PostTagsCreateManyArgs = {
+    data: Enumerable<PostTagsCreateManyInput>
+    skipDuplicates?: boolean
+  }
+
+
+  /**
+   * PostTags update
+   */
+  export type PostTagsUpdateArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
+    /**
+     * The data needed to update a PostTags.
+     * 
+    **/
+    data: XOR<PostTagsUpdateInput, PostTagsUncheckedUpdateInput>
+    /**
+     * Choose, which PostTags to update.
+     * 
+    **/
+    where: PostTagsWhereUniqueInput
+  }
+
+
+  /**
+   * PostTags updateMany
+   */
+  export type PostTagsUpdateManyArgs = {
+    data: XOR<PostTagsUpdateManyMutationInput, PostTagsUncheckedUpdateManyInput>
+    where?: PostTagsWhereInput
+  }
+
+
+  /**
+   * PostTags upsert
+   */
+  export type PostTagsUpsertArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
+    /**
+     * The filter to search for the PostTags to update in case it exists.
+     * 
+    **/
+    where: PostTagsWhereUniqueInput
+    /**
+     * In case the PostTags found by the `where` argument doesn't exist, create a new PostTags with this data.
+     * 
+    **/
+    create: XOR<PostTagsCreateInput, PostTagsUncheckedCreateInput>
+    /**
+     * In case the PostTags was found with the provided `where` argument, update it with this data.
+     * 
+    **/
+    update: XOR<PostTagsUpdateInput, PostTagsUncheckedUpdateInput>
+  }
+
+
+  /**
+   * PostTags delete
+   */
+  export type PostTagsDeleteArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
+    /**
+     * Filter which PostTags to delete.
+     * 
+    **/
+    where: PostTagsWhereUniqueInput
+  }
+
+
+  /**
+   * PostTags deleteMany
+   */
+  export type PostTagsDeleteManyArgs = {
+    where?: PostTagsWhereInput
+  }
+
+
+  /**
+   * PostTags without action
+   */
+  export type PostTagsArgs = {
+    /**
+     * Select specific fields to fetch from the PostTags
+     * 
+    **/
+    select?: PostTagsSelect | null
+    /**
+     * Choose, which related nodes to fetch as well.
+     * 
+    **/
+    include?: PostTagsInclude | null
   }
 
 
@@ -7146,7 +8895,7 @@ export namespace Prisma {
     type: 'type',
     accountId: 'accountId',
     accountUrl: 'accountUrl',
-    accountProfileUrl: 'accountProfileUrl'
+    accountImage: 'accountImage'
   };
 
   export type SocialScalarFieldEnum = (typeof SocialScalarFieldEnum)[keyof typeof SocialScalarFieldEnum]
@@ -7161,6 +8910,7 @@ export namespace Prisma {
     title: 'title',
     body: 'body',
     published: 'published',
+    publishedAt: 'publishedAt',
     views: 'views',
     viewsIps: 'viewsIps',
     likes: 'likes',
@@ -7169,6 +8919,22 @@ export namespace Prisma {
   };
 
   export type PostScalarFieldEnum = (typeof PostScalarFieldEnum)[keyof typeof PostScalarFieldEnum]
+
+
+  export const TagScalarFieldEnum: {
+    id: 'id',
+    name: 'name'
+  };
+
+  export type TagScalarFieldEnum = (typeof TagScalarFieldEnum)[keyof typeof TagScalarFieldEnum]
+
+
+  export const PostTagsScalarFieldEnum: {
+    tagId: 'tagId',
+    postId: 'postId'
+  };
+
+  export type PostTagsScalarFieldEnum = (typeof PostTagsScalarFieldEnum)[keyof typeof PostTagsScalarFieldEnum]
 
 
   export const CommentScalarFieldEnum: {
@@ -7307,7 +9073,7 @@ export namespace Prisma {
     type?: StringFilter | string
     accountId?: IntFilter | number
     accountUrl?: StringFilter | string
-    accountProfileUrl?: StringFilter | string
+    accountImage?: StringFilter | string
   }
 
   export type SocialOrderByInput = {
@@ -7316,7 +9082,7 @@ export namespace Prisma {
     type?: SortOrder
     accountId?: SortOrder
     accountUrl?: SortOrder
-    accountProfileUrl?: SortOrder
+    accountImage?: SortOrder
   }
 
   export type SocialWhereUniqueInput = {
@@ -7332,7 +9098,7 @@ export namespace Prisma {
     type?: StringWithAggregatesFilter | string
     accountId?: IntWithAggregatesFilter | number
     accountUrl?: StringWithAggregatesFilter | string
-    accountProfileUrl?: StringWithAggregatesFilter | string
+    accountImage?: StringWithAggregatesFilter | string
   }
 
   export type PostWhereInput = {
@@ -7347,6 +9113,7 @@ export namespace Prisma {
     title?: StringFilter | string
     body?: StringFilter | string
     published?: BoolFilter | boolean
+    publishedAt?: DateTimeNullableFilter | Date | string | null
     views?: IntFilter | number
     viewsIps?: StringNullableListFilter
     viewsUsers?: PostsViewedByUsersListRelationFilter
@@ -7356,6 +9123,7 @@ export namespace Prisma {
     author?: XOR<UserRelationFilter, UserWhereInput>
     authorId?: StringFilter | string
     comments?: CommentListRelationFilter
+    tags?: PostTagsListRelationFilter
   }
 
   export type PostOrderByInput = {
@@ -7367,6 +9135,7 @@ export namespace Prisma {
     title?: SortOrder
     body?: SortOrder
     published?: SortOrder
+    publishedAt?: SortOrder
     views?: SortOrder
     viewsIps?: SortOrder
     likes?: SortOrder
@@ -7391,11 +9160,66 @@ export namespace Prisma {
     title?: StringWithAggregatesFilter | string
     body?: StringWithAggregatesFilter | string
     published?: BoolWithAggregatesFilter | boolean
+    publishedAt?: DateTimeNullableWithAggregatesFilter | Date | string | null
     views?: IntWithAggregatesFilter | number
     viewsIps?: StringNullableListFilter
     likes?: IntWithAggregatesFilter | number
     likedIps?: StringNullableListFilter
     authorId?: StringWithAggregatesFilter | string
+  }
+
+  export type TagWhereInput = {
+    AND?: Enumerable<TagWhereInput>
+    OR?: Enumerable<TagWhereInput>
+    NOT?: Enumerable<TagWhereInput>
+    id?: StringFilter | string
+    name?: StringFilter | string
+    posts?: PostTagsListRelationFilter
+  }
+
+  export type TagOrderByInput = {
+    id?: SortOrder
+    name?: SortOrder
+  }
+
+  export type TagWhereUniqueInput = {
+    id?: string
+    name?: string
+  }
+
+  export type TagScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<TagScalarWhereWithAggregatesInput>
+    OR?: Enumerable<TagScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<TagScalarWhereWithAggregatesInput>
+    id?: StringWithAggregatesFilter | string
+    name?: StringWithAggregatesFilter | string
+  }
+
+  export type PostTagsWhereInput = {
+    AND?: Enumerable<PostTagsWhereInput>
+    OR?: Enumerable<PostTagsWhereInput>
+    NOT?: Enumerable<PostTagsWhereInput>
+    tagId?: StringFilter | string
+    tag?: XOR<TagRelationFilter, TagWhereInput>
+    postId?: StringFilter | string
+    post?: XOR<PostRelationFilter, PostWhereInput>
+  }
+
+  export type PostTagsOrderByInput = {
+    tagId?: SortOrder
+    postId?: SortOrder
+  }
+
+  export type PostTagsWhereUniqueInput = {
+    tagId_postId?: PostTagsTagIdPostIdCompoundUniqueInput
+  }
+
+  export type PostTagsScalarWhereWithAggregatesInput = {
+    AND?: Enumerable<PostTagsScalarWhereWithAggregatesInput>
+    OR?: Enumerable<PostTagsScalarWhereWithAggregatesInput>
+    NOT?: Enumerable<PostTagsScalarWhereWithAggregatesInput>
+    tagId?: StringWithAggregatesFilter | string
+    postId?: StringWithAggregatesFilter | string
   }
 
   export type CommentWhereInput = {
@@ -7633,7 +9457,7 @@ export namespace Prisma {
     type: string
     accountId: number
     accountUrl: string
-    accountProfileUrl: string
+    accountImage: string
     user: UserCreateNestedOneWithoutSocialsInput
   }
 
@@ -7643,7 +9467,7 @@ export namespace Prisma {
     type: string
     accountId: number
     accountUrl: string
-    accountProfileUrl: string
+    accountImage: string
   }
 
   export type SocialUpdateInput = {
@@ -7651,7 +9475,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
-    accountProfileUrl?: StringFieldUpdateOperationsInput | string
+    accountImage?: StringFieldUpdateOperationsInput | string
     user?: UserUpdateOneRequiredWithoutSocialsInput
   }
 
@@ -7661,7 +9485,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
-    accountProfileUrl?: StringFieldUpdateOperationsInput | string
+    accountImage?: StringFieldUpdateOperationsInput | string
   }
 
   export type SocialCreateManyInput = {
@@ -7670,7 +9494,7 @@ export namespace Prisma {
     type: string
     accountId: number
     accountUrl: string
-    accountProfileUrl: string
+    accountImage: string
   }
 
   export type SocialUpdateManyMutationInput = {
@@ -7678,7 +9502,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
-    accountProfileUrl?: StringFieldUpdateOperationsInput | string
+    accountImage?: StringFieldUpdateOperationsInput | string
   }
 
   export type SocialUncheckedUpdateManyInput = {
@@ -7687,7 +9511,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
-    accountProfileUrl?: StringFieldUpdateOperationsInput | string
+    accountImage?: StringFieldUpdateOperationsInput | string
   }
 
   export type PostCreateInput = {
@@ -7699,6 +9523,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
@@ -7707,6 +9532,7 @@ export namespace Prisma {
     likedUsers?: PostsLikedByUsersCreateNestedManyWithoutPostInput
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
+    tags?: PostTagsCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateInput = {
@@ -7718,6 +9544,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     authorId: string
@@ -7726,6 +9553,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersUncheckedCreateNestedManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUncheckedCreateNestedManyWithoutPostInput
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
+    tags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostUpdateInput = {
@@ -7737,6 +9565,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -7745,6 +9574,7 @@ export namespace Prisma {
     likedUsers?: PostsLikedByUsersUpdateManyWithoutPostInput
     author?: UserUpdateOneRequiredWithoutPostsInput
     comments?: CommentUpdateManyWithoutPostInput
+    tags?: PostTagsUpdateManyWithoutPostInput
   }
 
   export type PostUncheckedUpdateInput = {
@@ -7756,6 +9586,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     authorId?: StringFieldUpdateOperationsInput | string
@@ -7764,6 +9595,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersUncheckedUpdateManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUncheckedUpdateManyWithoutPostInput
     comments?: CommentUncheckedUpdateManyWithoutPostInput
+    tags?: PostTagsUncheckedUpdateManyWithoutPostInput
   }
 
   export type PostCreateManyInput = {
@@ -7775,6 +9607,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     authorId: string
@@ -7791,6 +9624,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -7806,11 +9640,85 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     authorId?: StringFieldUpdateOperationsInput | string
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
     likedIps?: PostUpdatelikedIpsInput | Enumerable<string>
+  }
+
+  export type TagCreateInput = {
+    id?: string
+    name: string
+    posts?: PostTagsCreateNestedManyWithoutTagInput
+  }
+
+  export type TagUncheckedCreateInput = {
+    id?: string
+    name: string
+    posts?: PostTagsUncheckedCreateNestedManyWithoutTagInput
+  }
+
+  export type TagUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    posts?: PostTagsUpdateManyWithoutTagInput
+  }
+
+  export type TagUncheckedUpdateInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+    posts?: PostTagsUncheckedUpdateManyWithoutTagInput
+  }
+
+  export type TagCreateManyInput = {
+    id?: string
+    name: string
+  }
+
+  export type TagUpdateManyMutationInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type TagUncheckedUpdateManyInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PostTagsCreateInput = {
+    tag: TagCreateNestedOneWithoutPostsInput
+    post: PostCreateNestedOneWithoutTagsInput
+  }
+
+  export type PostTagsUncheckedCreateInput = {
+    tagId: string
+    postId: string
+  }
+
+  export type PostTagsUpdateInput = {
+    tag?: TagUpdateOneRequiredWithoutPostsInput
+    post?: PostUpdateOneRequiredWithoutTagsInput
+  }
+
+  export type PostTagsUncheckedUpdateInput = {
+    tagId?: StringFieldUpdateOperationsInput | string
+    postId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PostTagsCreateManyInput = {
+    tagId: string
+    postId: string
+  }
+
+  export type PostTagsUpdateManyMutationInput = {
+
+  }
+
+  export type PostTagsUncheckedUpdateManyInput = {
+    tagId?: StringFieldUpdateOperationsInput | string
+    postId?: StringFieldUpdateOperationsInput | string
   }
 
   export type CommentCreateInput = {
@@ -8175,6 +10083,17 @@ export namespace Prisma {
     max?: NestedIntFilter
   }
 
+  export type DateTimeNullableFilter = {
+    equals?: Date | string | null
+    in?: Enumerable<Date> | Enumerable<string> | null
+    notIn?: Enumerable<Date> | Enumerable<string> | null
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeNullableFilter | Date | string | null
+  }
+
   export type StringNullableListFilter = {
     equals?: Enumerable<string> | null
     has?: string | null
@@ -8183,9 +10102,54 @@ export namespace Prisma {
     isEmpty?: boolean
   }
 
+  export type PostTagsListRelationFilter = {
+    every?: PostTagsWhereInput
+    some?: PostTagsWhereInput
+    none?: PostTagsWhereInput
+  }
+
+  export type DateTimeNullableWithAggregatesFilter = {
+    equals?: Date | string | null
+    in?: Enumerable<Date> | Enumerable<string> | null
+    notIn?: Enumerable<Date> | Enumerable<string> | null
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeNullableWithAggregatesFilter | Date | string | null
+    _count?: NestedIntNullableFilter
+    /**
+     * @deprecated since 2.23 because Aggregation keywords got unified to use underscore as prefix to prevent field clashes.
+     * 
+    **/
+    count?: NestedIntNullableFilter
+    _min?: NestedDateTimeNullableFilter
+    /**
+     * @deprecated since 2.23 because Aggregation keywords got unified to use underscore as prefix to prevent field clashes.
+     * 
+    **/
+    min?: NestedDateTimeNullableFilter
+    _max?: NestedDateTimeNullableFilter
+    /**
+     * @deprecated since 2.23 because Aggregation keywords got unified to use underscore as prefix to prevent field clashes.
+     * 
+    **/
+    max?: NestedDateTimeNullableFilter
+  }
+
+  export type TagRelationFilter = {
+    is?: TagWhereInput
+    isNot?: TagWhereInput
+  }
+
   export type PostRelationFilter = {
     is?: PostWhereInput
     isNot?: PostWhereInput
+  }
+
+  export type PostTagsTagIdPostIdCompoundUniqueInput = {
+    tagId: string
+    postId: string
   }
 
   export type PostsLikedByUsersPostIdUserIdCompoundUniqueInput = {
@@ -8533,6 +10497,13 @@ export namespace Prisma {
     connect?: Enumerable<CommentWhereUniqueInput>
   }
 
+  export type PostTagsCreateNestedManyWithoutPostInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutPostInput>, Enumerable<PostTagsUncheckedCreateWithoutPostInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutPostInput>
+    createMany?: PostTagsCreateManyPostInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+  }
+
   export type PostsViewedByUsersUncheckedCreateNestedManyWithoutPostInput = {
     create?: XOR<Enumerable<PostsViewedByUsersCreateWithoutPostInput>, Enumerable<PostsViewedByUsersUncheckedCreateWithoutPostInput>>
     connectOrCreate?: Enumerable<PostsViewedByUsersCreateOrConnectWithoutPostInput>
@@ -8552,6 +10523,17 @@ export namespace Prisma {
     connectOrCreate?: Enumerable<CommentCreateOrConnectWithoutPostInput>
     createMany?: CommentCreateManyPostInputEnvelope
     connect?: Enumerable<CommentWhereUniqueInput>
+  }
+
+  export type PostTagsUncheckedCreateNestedManyWithoutPostInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutPostInput>, Enumerable<PostTagsUncheckedCreateWithoutPostInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutPostInput>
+    createMany?: PostTagsCreateManyPostInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+  }
+
+  export type NullableDateTimeFieldUpdateOperationsInput = {
+    set?: Date | string | null
   }
 
   export type PostUpdateviewsIpsInput = {
@@ -8614,6 +10596,20 @@ export namespace Prisma {
     deleteMany?: Enumerable<CommentScalarWhereInput>
   }
 
+  export type PostTagsUpdateManyWithoutPostInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutPostInput>, Enumerable<PostTagsUncheckedCreateWithoutPostInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutPostInput>
+    upsert?: Enumerable<PostTagsUpsertWithWhereUniqueWithoutPostInput>
+    createMany?: PostTagsCreateManyPostInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+    set?: Enumerable<PostTagsWhereUniqueInput>
+    disconnect?: Enumerable<PostTagsWhereUniqueInput>
+    delete?: Enumerable<PostTagsWhereUniqueInput>
+    update?: Enumerable<PostTagsUpdateWithWhereUniqueWithoutPostInput>
+    updateMany?: Enumerable<PostTagsUpdateManyWithWhereWithoutPostInput>
+    deleteMany?: Enumerable<PostTagsScalarWhereInput>
+  }
+
   export type PostsViewedByUsersUncheckedUpdateManyWithoutPostInput = {
     create?: XOR<Enumerable<PostsViewedByUsersCreateWithoutPostInput>, Enumerable<PostsViewedByUsersUncheckedCreateWithoutPostInput>>
     connectOrCreate?: Enumerable<PostsViewedByUsersCreateOrConnectWithoutPostInput>
@@ -8656,12 +10652,96 @@ export namespace Prisma {
     deleteMany?: Enumerable<CommentScalarWhereInput>
   }
 
+  export type PostTagsUncheckedUpdateManyWithoutPostInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutPostInput>, Enumerable<PostTagsUncheckedCreateWithoutPostInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutPostInput>
+    upsert?: Enumerable<PostTagsUpsertWithWhereUniqueWithoutPostInput>
+    createMany?: PostTagsCreateManyPostInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+    set?: Enumerable<PostTagsWhereUniqueInput>
+    disconnect?: Enumerable<PostTagsWhereUniqueInput>
+    delete?: Enumerable<PostTagsWhereUniqueInput>
+    update?: Enumerable<PostTagsUpdateWithWhereUniqueWithoutPostInput>
+    updateMany?: Enumerable<PostTagsUpdateManyWithWhereWithoutPostInput>
+    deleteMany?: Enumerable<PostTagsScalarWhereInput>
+  }
+
   export type PostCreateManyviewsIpsInput = {
     set: Enumerable<string>
   }
 
   export type PostCreateManylikedIpsInput = {
     set: Enumerable<string>
+  }
+
+  export type PostTagsCreateNestedManyWithoutTagInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutTagInput>, Enumerable<PostTagsUncheckedCreateWithoutTagInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutTagInput>
+    createMany?: PostTagsCreateManyTagInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+  }
+
+  export type PostTagsUncheckedCreateNestedManyWithoutTagInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutTagInput>, Enumerable<PostTagsUncheckedCreateWithoutTagInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutTagInput>
+    createMany?: PostTagsCreateManyTagInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+  }
+
+  export type PostTagsUpdateManyWithoutTagInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutTagInput>, Enumerable<PostTagsUncheckedCreateWithoutTagInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutTagInput>
+    upsert?: Enumerable<PostTagsUpsertWithWhereUniqueWithoutTagInput>
+    createMany?: PostTagsCreateManyTagInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+    set?: Enumerable<PostTagsWhereUniqueInput>
+    disconnect?: Enumerable<PostTagsWhereUniqueInput>
+    delete?: Enumerable<PostTagsWhereUniqueInput>
+    update?: Enumerable<PostTagsUpdateWithWhereUniqueWithoutTagInput>
+    updateMany?: Enumerable<PostTagsUpdateManyWithWhereWithoutTagInput>
+    deleteMany?: Enumerable<PostTagsScalarWhereInput>
+  }
+
+  export type PostTagsUncheckedUpdateManyWithoutTagInput = {
+    create?: XOR<Enumerable<PostTagsCreateWithoutTagInput>, Enumerable<PostTagsUncheckedCreateWithoutTagInput>>
+    connectOrCreate?: Enumerable<PostTagsCreateOrConnectWithoutTagInput>
+    upsert?: Enumerable<PostTagsUpsertWithWhereUniqueWithoutTagInput>
+    createMany?: PostTagsCreateManyTagInputEnvelope
+    connect?: Enumerable<PostTagsWhereUniqueInput>
+    set?: Enumerable<PostTagsWhereUniqueInput>
+    disconnect?: Enumerable<PostTagsWhereUniqueInput>
+    delete?: Enumerable<PostTagsWhereUniqueInput>
+    update?: Enumerable<PostTagsUpdateWithWhereUniqueWithoutTagInput>
+    updateMany?: Enumerable<PostTagsUpdateManyWithWhereWithoutTagInput>
+    deleteMany?: Enumerable<PostTagsScalarWhereInput>
+  }
+
+  export type TagCreateNestedOneWithoutPostsInput = {
+    create?: XOR<TagCreateWithoutPostsInput, TagUncheckedCreateWithoutPostsInput>
+    connectOrCreate?: TagCreateOrConnectWithoutPostsInput
+    connect?: TagWhereUniqueInput
+  }
+
+  export type PostCreateNestedOneWithoutTagsInput = {
+    create?: XOR<PostCreateWithoutTagsInput, PostUncheckedCreateWithoutTagsInput>
+    connectOrCreate?: PostCreateOrConnectWithoutTagsInput
+    connect?: PostWhereUniqueInput
+  }
+
+  export type TagUpdateOneRequiredWithoutPostsInput = {
+    create?: XOR<TagCreateWithoutPostsInput, TagUncheckedCreateWithoutPostsInput>
+    connectOrCreate?: TagCreateOrConnectWithoutPostsInput
+    upsert?: TagUpsertWithoutPostsInput
+    connect?: TagWhereUniqueInput
+    update?: XOR<TagUpdateWithoutPostsInput, TagUncheckedUpdateWithoutPostsInput>
+  }
+
+  export type PostUpdateOneRequiredWithoutTagsInput = {
+    create?: XOR<PostCreateWithoutTagsInput, PostUncheckedCreateWithoutTagsInput>
+    connectOrCreate?: PostCreateOrConnectWithoutTagsInput
+    upsert?: PostUpsertWithoutTagsInput
+    connect?: PostWhereUniqueInput
+    update?: XOR<PostUpdateWithoutTagsInput, PostUncheckedUpdateWithoutTagsInput>
   }
 
   export type UserCreateNestedOneWithoutCommentsInput = {
@@ -8925,6 +11005,57 @@ export namespace Prisma {
     not?: NestedFloatFilter | number
   }
 
+  export type NestedDateTimeNullableFilter = {
+    equals?: Date | string | null
+    in?: Enumerable<Date> | Enumerable<string> | null
+    notIn?: Enumerable<Date> | Enumerable<string> | null
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeNullableFilter | Date | string | null
+  }
+
+  export type NestedDateTimeNullableWithAggregatesFilter = {
+    equals?: Date | string | null
+    in?: Enumerable<Date> | Enumerable<string> | null
+    notIn?: Enumerable<Date> | Enumerable<string> | null
+    lt?: Date | string
+    lte?: Date | string
+    gt?: Date | string
+    gte?: Date | string
+    not?: NestedDateTimeNullableWithAggregatesFilter | Date | string | null
+    _count?: NestedIntNullableFilter
+    /**
+     * @deprecated since 2.23 because Aggregation keywords got unified to use underscore as prefix to prevent field clashes.
+     * 
+    **/
+    count?: NestedIntNullableFilter
+    _min?: NestedDateTimeNullableFilter
+    /**
+     * @deprecated since 2.23 because Aggregation keywords got unified to use underscore as prefix to prevent field clashes.
+     * 
+    **/
+    min?: NestedDateTimeNullableFilter
+    _max?: NestedDateTimeNullableFilter
+    /**
+     * @deprecated since 2.23 because Aggregation keywords got unified to use underscore as prefix to prevent field clashes.
+     * 
+    **/
+    max?: NestedDateTimeNullableFilter
+  }
+
+  export type NestedIntNullableFilter = {
+    equals?: number | null
+    in?: Enumerable<number> | null
+    notIn?: Enumerable<number> | null
+    lt?: number
+    lte?: number
+    gt?: number
+    gte?: number
+    not?: NestedIntNullableFilter | number | null
+  }
+
   export type RoleCreateWithoutUsersInput = {
     id?: string
     name: string
@@ -8949,6 +11080,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
@@ -8956,6 +11088,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersCreateNestedManyWithoutPostInput
     likedUsers?: PostsLikedByUsersCreateNestedManyWithoutPostInput
     comments?: CommentCreateNestedManyWithoutPostInput
+    tags?: PostTagsCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateWithoutAuthorInput = {
@@ -8967,6 +11100,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
@@ -8974,6 +11108,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersUncheckedCreateNestedManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUncheckedCreateNestedManyWithoutPostInput
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
+    tags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostCreateOrConnectWithoutAuthorInput = {
@@ -8991,7 +11126,7 @@ export namespace Prisma {
     type: string
     accountId: number
     accountUrl: string
-    accountProfileUrl: string
+    accountImage: string
   }
 
   export type SocialUncheckedCreateWithoutUserInput = {
@@ -8999,7 +11134,7 @@ export namespace Prisma {
     type: string
     accountId: number
     accountUrl: string
-    accountProfileUrl: string
+    accountImage: string
   }
 
   export type SocialCreateOrConnectWithoutUserInput = {
@@ -9123,6 +11258,7 @@ export namespace Prisma {
     title?: StringFilter | string
     body?: StringFilter | string
     published?: BoolFilter | boolean
+    publishedAt?: DateTimeNullableFilter | Date | string | null
     views?: IntFilter | number
     viewsIps?: StringNullableListFilter
     likes?: IntFilter | number
@@ -9155,7 +11291,7 @@ export namespace Prisma {
     type?: StringFilter | string
     accountId?: IntFilter | number
     accountUrl?: StringFilter | string
-    accountProfileUrl?: StringFilter | string
+    accountImage?: StringFilter | string
   }
 
   export type PostsLikedByUsersUpsertWithWhereUniqueWithoutUserInput = {
@@ -9471,6 +11607,24 @@ export namespace Prisma {
     skipDuplicates?: boolean
   }
 
+  export type PostTagsCreateWithoutPostInput = {
+    tag: TagCreateNestedOneWithoutPostsInput
+  }
+
+  export type PostTagsUncheckedCreateWithoutPostInput = {
+    tagId: string
+  }
+
+  export type PostTagsCreateOrConnectWithoutPostInput = {
+    where: PostTagsWhereUniqueInput
+    create: XOR<PostTagsCreateWithoutPostInput, PostTagsUncheckedCreateWithoutPostInput>
+  }
+
+  export type PostTagsCreateManyPostInputEnvelope = {
+    data: Enumerable<PostTagsCreateManyPostInput>
+    skipDuplicates?: boolean
+  }
+
   export type PostsViewedByUsersUpsertWithWhereUniqueWithoutPostInput = {
     where: PostsViewedByUsersWhereUniqueInput
     update: XOR<PostsViewedByUsersUpdateWithoutPostInput, PostsViewedByUsersUncheckedUpdateWithoutPostInput>
@@ -9552,6 +11706,184 @@ export namespace Prisma {
     data: XOR<CommentUpdateManyMutationInput, CommentUncheckedUpdateManyWithoutCommentsInput>
   }
 
+  export type PostTagsUpsertWithWhereUniqueWithoutPostInput = {
+    where: PostTagsWhereUniqueInput
+    update: XOR<PostTagsUpdateWithoutPostInput, PostTagsUncheckedUpdateWithoutPostInput>
+    create: XOR<PostTagsCreateWithoutPostInput, PostTagsUncheckedCreateWithoutPostInput>
+  }
+
+  export type PostTagsUpdateWithWhereUniqueWithoutPostInput = {
+    where: PostTagsWhereUniqueInput
+    data: XOR<PostTagsUpdateWithoutPostInput, PostTagsUncheckedUpdateWithoutPostInput>
+  }
+
+  export type PostTagsUpdateManyWithWhereWithoutPostInput = {
+    where: PostTagsScalarWhereInput
+    data: XOR<PostTagsUpdateManyMutationInput, PostTagsUncheckedUpdateManyWithoutTagsInput>
+  }
+
+  export type PostTagsScalarWhereInput = {
+    AND?: Enumerable<PostTagsScalarWhereInput>
+    OR?: Enumerable<PostTagsScalarWhereInput>
+    NOT?: Enumerable<PostTagsScalarWhereInput>
+    tagId?: StringFilter | string
+    postId?: StringFilter | string
+  }
+
+  export type PostTagsCreateWithoutTagInput = {
+    post: PostCreateNestedOneWithoutTagsInput
+  }
+
+  export type PostTagsUncheckedCreateWithoutTagInput = {
+    postId: string
+  }
+
+  export type PostTagsCreateOrConnectWithoutTagInput = {
+    where: PostTagsWhereUniqueInput
+    create: XOR<PostTagsCreateWithoutTagInput, PostTagsUncheckedCreateWithoutTagInput>
+  }
+
+  export type PostTagsCreateManyTagInputEnvelope = {
+    data: Enumerable<PostTagsCreateManyTagInput>
+    skipDuplicates?: boolean
+  }
+
+  export type PostTagsUpsertWithWhereUniqueWithoutTagInput = {
+    where: PostTagsWhereUniqueInput
+    update: XOR<PostTagsUpdateWithoutTagInput, PostTagsUncheckedUpdateWithoutTagInput>
+    create: XOR<PostTagsCreateWithoutTagInput, PostTagsUncheckedCreateWithoutTagInput>
+  }
+
+  export type PostTagsUpdateWithWhereUniqueWithoutTagInput = {
+    where: PostTagsWhereUniqueInput
+    data: XOR<PostTagsUpdateWithoutTagInput, PostTagsUncheckedUpdateWithoutTagInput>
+  }
+
+  export type PostTagsUpdateManyWithWhereWithoutTagInput = {
+    where: PostTagsScalarWhereInput
+    data: XOR<PostTagsUpdateManyMutationInput, PostTagsUncheckedUpdateManyWithoutPostsInput>
+  }
+
+  export type TagCreateWithoutPostsInput = {
+    id?: string
+    name: string
+  }
+
+  export type TagUncheckedCreateWithoutPostsInput = {
+    id?: string
+    name: string
+  }
+
+  export type TagCreateOrConnectWithoutPostsInput = {
+    where: TagWhereUniqueInput
+    create: XOR<TagCreateWithoutPostsInput, TagUncheckedCreateWithoutPostsInput>
+  }
+
+  export type PostCreateWithoutTagsInput = {
+    id?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    slug: string
+    title: string
+    body: string
+    published?: boolean
+    publishedAt?: Date | string | null
+    views: number
+    likes: number
+    viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
+    likedIps?: PostCreatelikedIpsInput | Enumerable<string>
+    viewsUsers?: PostsViewedByUsersCreateNestedManyWithoutPostInput
+    likedUsers?: PostsLikedByUsersCreateNestedManyWithoutPostInput
+    author: UserCreateNestedOneWithoutPostsInput
+    comments?: CommentCreateNestedManyWithoutPostInput
+  }
+
+  export type PostUncheckedCreateWithoutTagsInput = {
+    id?: string
+    createdAt?: Date | string
+    updatedAt?: Date | string
+    isDeleted?: boolean
+    slug: string
+    title: string
+    body: string
+    published?: boolean
+    publishedAt?: Date | string | null
+    views: number
+    likes: number
+    authorId: string
+    viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
+    likedIps?: PostCreatelikedIpsInput | Enumerable<string>
+    viewsUsers?: PostsViewedByUsersUncheckedCreateNestedManyWithoutPostInput
+    likedUsers?: PostsLikedByUsersUncheckedCreateNestedManyWithoutPostInput
+    comments?: CommentUncheckedCreateNestedManyWithoutPostInput
+  }
+
+  export type PostCreateOrConnectWithoutTagsInput = {
+    where: PostWhereUniqueInput
+    create: XOR<PostCreateWithoutTagsInput, PostUncheckedCreateWithoutTagsInput>
+  }
+
+  export type TagUpsertWithoutPostsInput = {
+    update: XOR<TagUpdateWithoutPostsInput, TagUncheckedUpdateWithoutPostsInput>
+    create: XOR<TagCreateWithoutPostsInput, TagUncheckedCreateWithoutPostsInput>
+  }
+
+  export type TagUpdateWithoutPostsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type TagUncheckedUpdateWithoutPostsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    name?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PostUpsertWithoutTagsInput = {
+    update: XOR<PostUpdateWithoutTagsInput, PostUncheckedUpdateWithoutTagsInput>
+    create: XOR<PostCreateWithoutTagsInput, PostUncheckedCreateWithoutTagsInput>
+  }
+
+  export type PostUpdateWithoutTagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    likes?: IntFieldUpdateOperationsInput | number
+    viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
+    likedIps?: PostUpdatelikedIpsInput | Enumerable<string>
+    viewsUsers?: PostsViewedByUsersUpdateManyWithoutPostInput
+    likedUsers?: PostsLikedByUsersUpdateManyWithoutPostInput
+    author?: UserUpdateOneRequiredWithoutPostsInput
+    comments?: CommentUpdateManyWithoutPostInput
+  }
+
+  export type PostUncheckedUpdateWithoutTagsInput = {
+    id?: StringFieldUpdateOperationsInput | string
+    createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isDeleted?: BoolFieldUpdateOperationsInput | boolean
+    slug?: StringFieldUpdateOperationsInput | string
+    title?: StringFieldUpdateOperationsInput | string
+    body?: StringFieldUpdateOperationsInput | string
+    published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+    views?: IntFieldUpdateOperationsInput | number
+    likes?: IntFieldUpdateOperationsInput | number
+    authorId?: StringFieldUpdateOperationsInput | string
+    viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
+    likedIps?: PostUpdatelikedIpsInput | Enumerable<string>
+    viewsUsers?: PostsViewedByUsersUncheckedUpdateManyWithoutPostInput
+    likedUsers?: PostsLikedByUsersUncheckedUpdateManyWithoutPostInput
+    comments?: CommentUncheckedUpdateManyWithoutPostInput
+  }
+
   export type UserCreateWithoutCommentsInput = {
     id?: string
     createdAt?: Date | string
@@ -9594,6 +11926,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
@@ -9601,6 +11934,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersCreateNestedManyWithoutPostInput
     likedUsers?: PostsLikedByUsersCreateNestedManyWithoutPostInput
     author: UserCreateNestedOneWithoutPostsInput
+    tags?: PostTagsCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateWithoutCommentsInput = {
@@ -9612,6 +11946,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     authorId: string
@@ -9619,6 +11954,7 @@ export namespace Prisma {
     likedIps?: PostCreatelikedIpsInput | Enumerable<string>
     viewsUsers?: PostsViewedByUsersUncheckedCreateNestedManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUncheckedCreateNestedManyWithoutPostInput
+    tags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostCreateOrConnectWithoutCommentsInput = {
@@ -9673,6 +12009,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -9680,6 +12017,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersUpdateManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUpdateManyWithoutPostInput
     author?: UserUpdateOneRequiredWithoutPostsInput
+    tags?: PostTagsUpdateManyWithoutPostInput
   }
 
   export type PostUncheckedUpdateWithoutCommentsInput = {
@@ -9691,6 +12029,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     authorId?: StringFieldUpdateOperationsInput | string
@@ -9698,6 +12037,7 @@ export namespace Prisma {
     likedIps?: PostUpdatelikedIpsInput | Enumerable<string>
     viewsUsers?: PostsViewedByUsersUncheckedUpdateManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUncheckedUpdateManyWithoutPostInput
+    tags?: PostTagsUncheckedUpdateManyWithoutPostInput
   }
 
   export type PostCreateWithoutLikedUsersInput = {
@@ -9709,6 +12049,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
@@ -9716,6 +12057,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersCreateNestedManyWithoutPostInput
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
+    tags?: PostTagsCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateWithoutLikedUsersInput = {
@@ -9727,6 +12069,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     authorId: string
@@ -9734,6 +12077,7 @@ export namespace Prisma {
     likedIps?: PostCreatelikedIpsInput | Enumerable<string>
     viewsUsers?: PostsViewedByUsersUncheckedCreateNestedManyWithoutPostInput
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
+    tags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostCreateOrConnectWithoutLikedUsersInput = {
@@ -9788,6 +12132,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -9795,6 +12140,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersUpdateManyWithoutPostInput
     author?: UserUpdateOneRequiredWithoutPostsInput
     comments?: CommentUpdateManyWithoutPostInput
+    tags?: PostTagsUpdateManyWithoutPostInput
   }
 
   export type PostUncheckedUpdateWithoutLikedUsersInput = {
@@ -9806,6 +12152,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     authorId?: StringFieldUpdateOperationsInput | string
@@ -9813,6 +12160,7 @@ export namespace Prisma {
     likedIps?: PostUpdatelikedIpsInput | Enumerable<string>
     viewsUsers?: PostsViewedByUsersUncheckedUpdateManyWithoutPostInput
     comments?: CommentUncheckedUpdateManyWithoutPostInput
+    tags?: PostTagsUncheckedUpdateManyWithoutPostInput
   }
 
   export type UserUpsertWithoutLikedPostsInput = {
@@ -9857,6 +12205,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     viewsIps?: PostCreateviewsIpsInput | Enumerable<string>
@@ -9864,6 +12213,7 @@ export namespace Prisma {
     likedUsers?: PostsLikedByUsersCreateNestedManyWithoutPostInput
     author: UserCreateNestedOneWithoutPostsInput
     comments?: CommentCreateNestedManyWithoutPostInput
+    tags?: PostTagsCreateNestedManyWithoutPostInput
   }
 
   export type PostUncheckedCreateWithoutViewsUsersInput = {
@@ -9875,6 +12225,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     authorId: string
@@ -9882,6 +12233,7 @@ export namespace Prisma {
     likedIps?: PostCreatelikedIpsInput | Enumerable<string>
     likedUsers?: PostsLikedByUsersUncheckedCreateNestedManyWithoutPostInput
     comments?: CommentUncheckedCreateNestedManyWithoutPostInput
+    tags?: PostTagsUncheckedCreateNestedManyWithoutPostInput
   }
 
   export type PostCreateOrConnectWithoutViewsUsersInput = {
@@ -9936,6 +12288,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -9943,6 +12296,7 @@ export namespace Prisma {
     likedUsers?: PostsLikedByUsersUpdateManyWithoutPostInput
     author?: UserUpdateOneRequiredWithoutPostsInput
     comments?: CommentUpdateManyWithoutPostInput
+    tags?: PostTagsUpdateManyWithoutPostInput
   }
 
   export type PostUncheckedUpdateWithoutViewsUsersInput = {
@@ -9954,6 +12308,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     authorId?: StringFieldUpdateOperationsInput | string
@@ -9961,6 +12316,7 @@ export namespace Prisma {
     likedIps?: PostUpdatelikedIpsInput | Enumerable<string>
     likedUsers?: PostsLikedByUsersUncheckedUpdateManyWithoutPostInput
     comments?: CommentUncheckedUpdateManyWithoutPostInput
+    tags?: PostTagsUncheckedUpdateManyWithoutPostInput
   }
 
   export type UserUpsertWithoutViewedPostsInput = {
@@ -10005,6 +12361,7 @@ export namespace Prisma {
     title: string
     body: string
     published?: boolean
+    publishedAt?: Date | string | null
     views: number
     likes: number
     viewsIps?: PostCreateManyviewsIpsInput | Enumerable<string>
@@ -10016,7 +12373,7 @@ export namespace Prisma {
     type: string
     accountId: number
     accountUrl: string
-    accountProfileUrl: string
+    accountImage: string
   }
 
   export type PostsLikedByUsersCreateManyUserInput = {
@@ -10047,6 +12404,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -10054,6 +12412,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersUpdateManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUpdateManyWithoutPostInput
     comments?: CommentUpdateManyWithoutPostInput
+    tags?: PostTagsUpdateManyWithoutPostInput
   }
 
   export type PostUncheckedUpdateWithoutAuthorInput = {
@@ -10065,6 +12424,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -10072,6 +12432,7 @@ export namespace Prisma {
     viewsUsers?: PostsViewedByUsersUncheckedUpdateManyWithoutPostInput
     likedUsers?: PostsLikedByUsersUncheckedUpdateManyWithoutPostInput
     comments?: CommentUncheckedUpdateManyWithoutPostInput
+    tags?: PostTagsUncheckedUpdateManyWithoutPostInput
   }
 
   export type PostUncheckedUpdateManyWithoutPostsInput = {
@@ -10083,6 +12444,7 @@ export namespace Prisma {
     title?: StringFieldUpdateOperationsInput | string
     body?: StringFieldUpdateOperationsInput | string
     published?: BoolFieldUpdateOperationsInput | boolean
+    publishedAt?: NullableDateTimeFieldUpdateOperationsInput | Date | string | null
     views?: IntFieldUpdateOperationsInput | number
     likes?: IntFieldUpdateOperationsInput | number
     viewsIps?: PostUpdateviewsIpsInput | Enumerable<string>
@@ -10094,7 +12456,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
-    accountProfileUrl?: StringFieldUpdateOperationsInput | string
+    accountImage?: StringFieldUpdateOperationsInput | string
   }
 
   export type SocialUncheckedUpdateWithoutUserInput = {
@@ -10102,7 +12464,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
-    accountProfileUrl?: StringFieldUpdateOperationsInput | string
+    accountImage?: StringFieldUpdateOperationsInput | string
   }
 
   export type SocialUncheckedUpdateManyWithoutSocialsInput = {
@@ -10110,7 +12472,7 @@ export namespace Prisma {
     type?: StringFieldUpdateOperationsInput | string
     accountId?: IntFieldUpdateOperationsInput | number
     accountUrl?: StringFieldUpdateOperationsInput | string
-    accountProfileUrl?: StringFieldUpdateOperationsInput | string
+    accountImage?: StringFieldUpdateOperationsInput | string
   }
 
   export type PostsLikedByUsersUpdateWithoutUserInput = {
@@ -10235,6 +12597,10 @@ export namespace Prisma {
     authorId: string
   }
 
+  export type PostTagsCreateManyPostInput = {
+    tagId: string
+  }
+
   export type PostsViewedByUsersUpdateWithoutPostInput = {
     viewedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutViewedPostsInput
@@ -10281,6 +12647,34 @@ export namespace Prisma {
     isDeleted?: BoolFieldUpdateOperationsInput | boolean
     body?: StringFieldUpdateOperationsInput | string
     authorId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PostTagsUpdateWithoutPostInput = {
+    tag?: TagUpdateOneRequiredWithoutPostsInput
+  }
+
+  export type PostTagsUncheckedUpdateWithoutPostInput = {
+    tagId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PostTagsUncheckedUpdateManyWithoutTagsInput = {
+    tagId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PostTagsCreateManyTagInput = {
+    postId: string
+  }
+
+  export type PostTagsUpdateWithoutTagInput = {
+    post?: PostUpdateOneRequiredWithoutTagsInput
+  }
+
+  export type PostTagsUncheckedUpdateWithoutTagInput = {
+    postId?: StringFieldUpdateOperationsInput | string
+  }
+
+  export type PostTagsUncheckedUpdateManyWithoutPostsInput = {
+    postId?: StringFieldUpdateOperationsInput | string
   }
 
 

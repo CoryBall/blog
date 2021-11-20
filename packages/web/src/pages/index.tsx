@@ -1,31 +1,20 @@
-import Head from 'next/head'
-import { useAppSelector } from '@blog/state';
-import { NextPage } from 'next';
+import React from 'react';
+import {NextPage} from 'next';
+import { Post, useAllPostsQuery } from '@blog/types';
+import { PostList } from '@blog/web/components/posts/postList';
 
 const HomePage: NextPage = () => {
-  const isAuthed = useAppSelector((state) => state.users.isAuthenticated);
-  const loading = useAppSelector((state) => state.app.loading)
+    const {data, loading} = useAllPostsQuery();
 
-  if (!loading){
-    return (<div></div>)
-  }
+    if (loading){
+        return <div>loading...</div>
+    }
 
-  return (
-    <div className="container">
-      <Head>
-        <title>Cory Blog</title>
-      </Head>
-      <div>
-        isAuthed:
-        <span className="text-xl text-black">
-        {isAuthed}
-        <p>
-          loading: {loading}
-        </p>
-        </span>
-      </div>
-    </div>
-  )
+    return (
+        <div className="flex flex-col mx-auto w-3/4 mt-12">
+            <PostList data={data?.allPosts as Post[]} />
+        </div>
+    )
 }
 
-export default HomePage
+export default HomePage;
